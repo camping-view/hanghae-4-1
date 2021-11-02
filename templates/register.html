@@ -20,12 +20,28 @@
             crossorigin="anonymous"></script>
     <title>캠핑 쀼 | 회원가입</title>
 
+    <style>
+        .err_css{
+            color: red;
+            font-size: 15px;
+        }
+
+        .join-group {
+            width: 500px;
+            margin-top: 20px;
+        }
+
+        .container {
+            padding-left: 50px;
+        }
+
+        .wrap{
+            width: 600px;
+            margin: auto;
+        }
+    </style>
     <script>
         function register(){
-            // let id = $('#user_id').val();
-            // let password = $('#user_pw').val();
-            // let confirm_password = $('#confirm_pw').val();
-            // let nick = $('#user_nick').val();
 
             $.ajax({
             type: "POST",
@@ -38,7 +54,7 @@
             success: function (response) {
                 if (response['result'] == 'success') {
                     alert('회원가입이 완료되었습니다.')
-                    window.location.href = '/'
+                    window.location.reload()
                 } else {
                     alert(response['msg'])
                 }
@@ -47,21 +63,58 @@
 
         }
 
+        // function err_msg(){
+        //     let id = $('#user_id').val();
+        //
+        //     $.ajax({
+        //     type: "POST",
+        //     url: "/register/idcheck",
+        //     data: {
+        //         id: id
+        //     },
+        //     success: function (response) {
+        //         if(response['exists'] == 'true'){
+        //             $('#err_txt').val('아이디가 중복됩니다');
+        //         }else{
+        //             $('#err_txt').text('사용가능한 아이디입니다');
+        //             console.log($('#err_txt').val())
+        //         }
+        //     }
+        // })
+        // }
+
     </script>
 </head>
 <body>
-    <div>
-        <div class="login-group">
-            <label>8~10자, 숫자 + 영문 대소문자 조합</label><br>
-            <input type="text" id="user_id" placeholder="아이디 입력" min="8" max="10"><br>
-            <label>8~16자, 숫자 + 영문 대소문자 + 특수문자 조합</label><br>
-            <input type="password" id="user_pw" placeholder="비밀번호 입력" min="8" max="16"><br>
-            <label></label><br>
-            <input type="password" id="confirm_pw" placeholder="비밀번호 다시 입력"><br>
-            <label>2자리 이상, 숫자 + 영문 대소문자 조합</label><br>
-            <input type="text" id="user_nick" placeholder="닉네임 입력" min="2">
+<div class="wrap">
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">회원가입</h1>
+            <div class="join-group">
+                <div class="join-row">
+                    <label for="user_id">8~10자리, 숫자 + 영문 대소문자 조합</label>
+                    <input type="text" class="form-control" id="user_id" placeholder="아이디 입력">
+                    <span class="err_css"></span><br>
+                </div>
+                <div class="join-row">
+                    <label for="user_pw">8~16자, 숫자 + 영문 대소문자 + 특수문자 조합</label>
+                    <input type="password" class="form-control" id="user_pw" placeholder="비밀번호 입력">
+                    <span class="err_css"></span><br>
+                </div>
+                <div class="join-row">
+                    <label for="exampleInputPassword1">비밀번호 확인</label>
+                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="비밀번호 다시 입력">
+                    <span class="err_css"></span><br>
+                </div>
+                <div class="join-row">
+                    <label for="user_nick">2자리 이상, 숫자 + 영문 대소문자 조합</label>
+                    <input type="email" class="form-control" id="user_nick" placeholder="닉네임 입력">
+                    <span class="err_css"></span><br>
+                </div>
+                <button onclick="register()" type="submit" class="btn btn-primary">회원가입</button>
+            </div>
         </div>
     </div>
-    <p><button onclick="register()" class="box-btn">회원가입</button></p>
+</div>
 </body>
 </html>

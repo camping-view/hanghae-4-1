@@ -20,7 +20,6 @@ def register():
 def register_save():
    id_receive = request.form['id']
    password_receive = request.form['password']
-   # pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
    nick_receive = request.form['nick']
 
    doc = {
@@ -32,13 +31,12 @@ def register_save():
 
    return jsonify({'result': 'success'})
 
-# ## 아이디 중복 확인 api
-# @app.route('/register/idcheck', methods=['POST'])
-# def check_id():
-#     id_receive = request.form['id']
-#     exists = bool(db.memeber.find_one({'id':id_receive}))
-#
-#     return jsonify({'exists':exists})
+## 아이디 중복 확인 api
+@app.route('/register/idcheck', methods=['POST'])
+def check_id():
+    id_receive = request.form['id']
+    exists = bool(db.memeber.find_one({'id':id_receive}))
+    return jsonify({'exists':exists})
 #
 # ## 닉네임 중복 확인 api
 # @app.route('/register/nickcheck', methods=['POST'])
