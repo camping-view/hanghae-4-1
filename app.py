@@ -27,7 +27,7 @@ def register_save():
         'password': password_receive,
         'nick': nick_receive
    }
-   db.memeber.insert_one(doc)
+   db.member.insert_one(doc)
 
    return jsonify({'result': 'success'})
 
