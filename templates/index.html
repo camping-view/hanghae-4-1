@@ -169,6 +169,9 @@
 
             }
         }
+        function writeReview(){
+            window.location.href="/review/insert"
+        }
     </script>
 
 </head>
@@ -180,6 +183,7 @@
             <h3 class="subtitle is-sparta">캠핑용품 리뷰~</h3>
         </div>
         <div>
+            <button onclick="writeReview()">리뷰쓰기</button>
             <button onclick="login()">로그인</button>
             <button onclick="logout_out()">로그아웃</button>
         </div>
