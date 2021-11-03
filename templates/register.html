@@ -47,7 +47,7 @@
     </style>
     <script>
         {% if msg %}
-            {#alert("{{ msg }}")#}
+        {#alert("{{ msg }}")#}
         {% endif %}
 
         function is_id(asValue) {
@@ -65,7 +65,7 @@
             return regExp.test(asValue);
         }
 
-        {#클라이언트 ID 중복체크 API#}
+        //클라이언트 ID 중복체크 API
 
         function check_dup() {
             let id = $("#input-id").val()
@@ -131,7 +131,7 @@
             });
         }
 
-        {#클라이언트 아이디 생성 API#}
+        //클라이언트 아이디 생성 API
 
         function sign_up() {
             let id = $("#input-id").val()

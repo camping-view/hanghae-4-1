@@ -5,34 +5,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스파르타코딩클럽 | HTML 기초</title>
+    <title>Log In | CAMPING-VIEW</title>
+
+    <meta property="og:image" content="{{ url_for('static', filename='ogimg.png') }}"/>
+
+
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Stylish&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='mystyle.css') }}" rel="stylesheet">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script src="{{ url_for('static', filename='myjs.js') }}"></script>
+
+
+    <script>
+
+
+        //로그아웃기능
+        function logout_out() {
+            $.removeCookie('mytoken', {path: '/'});
+            alert('로그아웃!')
+            window.location.href = "/login"
+        }
+
+        //리뷰 불러오기
+        $(document).ready(function () {
+            get_reviews()
+        })
+
+        //좋아요 불러오기
+        function get_reviews(user_id) {
+            if (user_id == undefined) {
+                user_id = ""
+            }
+            $("#post-box").empty()
+            $.ajax({
+                type: "GET",
+                url: `/get_reviews?user_id_give=${user_id}`,
+                data: {},
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        let reviews = response["reviews"]
+                        for (let i = 0; i < reviews.length; i++) {
+                            let review = reviews[i]
+                            let time_post = new Date(review["date"])
+                            let time_before = time2str(time_post)
+
+                            //좋아요 +/- 기능 구분
+
+                            let class_heart = ""
+                            if (review["heart_by_me"]) {
+                                class_heart = "fa-heart"
+                            } else {
+                                class_heart = "fa-heart-o"
+                            }
+                            // let class_heart = review['heart_by_me'] ? "fa-heart" : "fa-heart-o"
+
+                            let html_temp = `<div class="box" id="${review["_id"]}">
+                                                <article class="media">
+                                                    <div class="media-left">
+                                                        <a class="image is-64x64" href="/user/${review['user_id']}">
+                                                            <img class="is-rounded" src="/static/${review['profile_pic_real']}"
+                                                                 alt="Image">
+                                                        </a>
+                                                    </div>
+                                                    <div class="media-content">
+                                                        <div class="content">
+                                                            <p>
+                                                                <strong>${review['profile_name']}</strong> <small>@${review['user_id']}</small> <small>${time_before}</small>
+                                                                <br>
+                                                                ${review['comment']}
+                                                            </p>
+                                                        </div>
+                                                        <nav class="level is-mobile">
+                                                            <div class="level-left">
+                                                                <a class="level-item is-sparta" aria-label="heart" onclick="toggle_like('${review['_id']}', 'heart')">
+                                                                    <span class="icon is-small"><i class="fa ${class_heart}"
+                                                                                                   aria-hidden="true"></i></span>&nbsp;<span class="like-num">${num2str(review["count_heart"])}</span>
+                                                                </a>
+                                                            </div>
+
+                                                        </nav>
+                                                    </div>
+                                                </article>
+                                            </div>`
+                            $("#review-box").append(html_temp)
+                        }
+                    }
+                }
+            })
+        }
+
+        function time2str(date) {
+            let today = new Date()
+            let time = (today - date) / 1000 / 60  // 분
+
+            if (time < 60) {
+                return parseInt(time) + "분 전"
+            }
+            time = time / 60  // 시간
+            if (time < 24) {
+                return parseInt(time) + "시간 전"
+            }
+            time = time / 24
+            if (time < 7) {
+                return parseInt(time) + "일 전"
+            }
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+        }
+
+        //좋아요 수 k단위
+        function num2str(count) {
+            if (count > 10000) {
+                return parseInt(count / 1000) + "k"
+            }
+            if (count > 500) {
+                return parseInt(count / 100) / 10 + "k"
+            }
+            if (count == 0) {
+                return ""
+            }
+            return count
+        }
+
+        //좋아요 +/- 기능 구현
+        function toggle_like(review_id, type) {
+            console.log(review_id, type)
+            let $a_like = $(`#${review_id} a[aria-label='${type}']`)
+            let $i_like = $a_like.find("i")
+            let class_s = {"heart": "fa-heart", "star": "fa-star", "like": "fa-thumbs-up"}
+            let class_o = {"heart": "fa-heart-o", "star": "fa-star-o", "like": "fa-thumbs-o-up"}
+            if ($i_like.hasClass(class_s[type])) {
+                $.ajax({
+                    type: "POST",
+                    url: "/update_like",
+                    data: {
+                        review_id_give: review_id,
+                        type_give: type,
+                        action_give: "unlike"
+                    },
+                    success: function (response) {
+                        console.log("unlike")
+                        $i_like.addClass(class_o[type]).removeClass(class_s[type])
+                        $a_like.find("span.like-num").text(num2str(response["count"]))
+                    }
+                })
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/update_like",
+                    data: {
+                        review_id_give: review_id,
+                        type_give: type,
+                        action_give: "like"
+                    },
+                    success: function (response) {
+                        console.log("like")
+                        $i_like.addClass(class_s[type]).removeClass(class_o[type])
+                        $a_like.find("span.like-num").text(num2str(response["count"]))
+                    }
+                })
+
+            }
+        }
+    </script>
+
 </head>
 
 <body>
-    <!-- 구역을 나누는 태그들 -->
-    <div>나는 구역을 나누죠</div>
-    <p>나는 문단이에요</p>
-    <ul>
-        <li> bullet point!1 </li>
-        <li> bullet point!2 </li>
-    </ul>
 
-    <!-- 구역 내 콘텐츠 태그들 -->
-    <h1>h1은 제목을 나타내는 태그입니다. 페이지마다 하나씩 꼭 써주는 게 좋아요. 그래야 구글 검색이 잘 되거든요.</h1>
-    <h2>h2는 소제목입니다.</h2>
-    <h3>h3~h6도 각자의 역할이 있죠. 비중은 작지만..</h3>
-    <hr>
-    span 태그입니다: 특정 <span style="color:red">글자</span>를 꾸밀 때 써요
-    <hr>
-    a 태그입니다: <a href="http://naver.com/"> 하이퍼링크 </a>
-    <hr>
-    img 태그입니다: <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" />
-    <hr>
-    input 태그입니다: <input type="text" />
-    <hr>
-    button 태그입니다: <button> 버튼입니다</button>
-    <hr>
-    textarea 태그입니다: <textarea>나는 무엇일까요?</textarea>
+<button onclick=window.location.href="/login">로그인</button>
+<button onclick="logout_out()">로그아웃</button>
+
+    </div>
+</section>
+
 </body>
 
 </html>
