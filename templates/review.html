@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Stylish&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
+
+    <!-- js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                crossorigin="anonymous"></script>
+    <!--login-->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <title>Title</title>
+    <script>
+        $(document).ready(function () {
+
+        });
+        function valueCheck(){
+            let check=true
+
+            //상품 이미지
+            let image = $('#product-image')[0].files[0]
+            if(image==undefined || image==null || image==''){
+                $('#product-image').siblings('.check-msg').text('이미지를 등록해주세요')
+                check=false
+            }
+            //상품명
+            let name=$('#product-name')
+            if(name.val()==0 || name.val().length<1){
+                name.siblings('.check-msg').text('상품명을 입력해주세요')
+                check=false
+            }
+
+            //상품 가격
+            let price=$('#product-price')
+            if(price.val()==0 || price.val().length<1){
+                price.siblings('.check-msg').text('상품 가격을 입력해주세요')
+                check=false
+            }
+
+            //상품명
+            let content=$('#review-content')
+            if(content.val()==0 || content.val().length<1){
+                content.siblings('.check-msg').text('리뷰내용을 입력해주세요')
+                check=false
+            }
+            return check
+        }
+        function insertReview() {
+            if(valueCheck()){
+                let image = $('#product-image')[0].files[0]
+                let review_form = $("#review-form").serializeArray();
+
+                return true;
+                let formData = new FormData();
+                // 모든 유효성, 중복 체크가 확인 됐을 때
+                review_form.forEach(function(data) {
+                    formData.append(data["name"], data["value"]);
+                });
+
+                // 단일 파일 업로드
+                if (image != undefined) {
+                    formData.append("image", image)
+                }
+                $.ajax({
+                    url: "/review/insert.json",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    success: function (response) {
+                        if(response.result){
+                            console.log(response.review_id)
+                            alert(response["msg"]);
+                            window.location.href="/reivew?review_id="+response.review_id
+                        }else{
+                            alert(response["msg"])
+                        }
+
+                    }
+                });
+            }
+        }
+        function infoOpen(){
+            $('#url-info').append(`<p>상품을 구매한 url주소를 입력해주시면 이미지와 상품명을 입력해줍니다.</p>`)
+            $('#url-button').attr('onclick','infoClose()')
+        }
+        function infoClose(){
+            $('#url-info').empty()
+            $('#url-button').attr('onclick','infoOpen()')
+        }
+        // function detailReview(id){
+        //     $.ajax({
+        //         type: "GET",
+        //         url: "/review",
+        //         data: {review_id : id},
+        //         success: function (response) {
+        //             alert('review detail');
+        //         }
+        //     })
+        // }
+        /* 상품정보 크롤링 */
+        function crollingProduct(){
+
+        }
+
+    </script>
+</head>
+<body>
+
+    <!-- TODO header부분 뺄수 있는 방법 찾기-->
+    <section class="hero is-white">
+        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
+            <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
+            <h3 class="subtitle is-sparta">세상을 즐겁게</h3>
+        </div>
+        <div>
+            <button onclick="login()">로그인</button>
+            <button onclick="logout_out()">로그아웃</button>
+        </div>
+    </section>
+    <form id="review-form" method="post" enctype="multipart/form-data">
+        <div class="image-area">
+            <div class="button">
+                <label for="product-image"> </label>
+            </div>
+            <input type="file" id="product-image" name="image" onchange="">
+            <p class="check-msg"></p>
+        </div>
+        <div class="">
+            <label for="product-name">상품명</label>
+            <input type="text" id="product-name" name="name" value="" placeholder="상품명을 입력해주세요">
+            <p class="check-msg"></p>
+        </div>
+        <div class="">
+            <label for="product-price">가격</label>
+            <input type="number" id="product-price" class="" name="price" value="" placeholder="상품 가격을 입력해주세요">
+            <p class="check-msg"></p>
+        </div>
+        <div class="">
+            <!--TODO 크롤링-->
+            <button id="url-button" type="button" onclick="infoOpen()">?</button>
+            <div id="url-info"></div>
+            <label for="product-url">url</label>
+            <input type="text" id="product-url" class="" name="url" placeholder="상품구매한 url을 입력해주세요">
+            <button onclick="crollingProduct();">입력</button>
+        </div>
+        <!--TODO 별점-->
+        <div class="">
+            <input type="number" name="star" value="" max="5" min="1">
+        </div>
+        <div class="">
+            <textarea id="review-content" name="content"></textarea>
+            <p class="check-msg"></p>
+        </div>
+        <button type="button" onclick="insertReview();">등록하기</button>
+        <button type="button" onclick="updateReview();">수정하기</button>
+        <button type="button" onclick="deleteReview();">삭제하기</button>
+    </form>
+</body>
+</html>

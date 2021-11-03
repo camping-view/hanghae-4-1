@@ -88,6 +88,117 @@ def login_in():
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
 
+##리뷰 등록페이지 호출
+@app.route('/review/insert', methods=['GET'])
+def insert_page():
+    print("'/review/insert', methods=['GET']")
+    return render_template('review.html', testmsg='/review/insert')
+
+##리뷰 등록
+@app.route('/review/insert.json', methods=['POST'])
+def insert_review():
+    print("'/review/insert.json', methods=['POST']")
+    #TODO 로그인 되어있으면 진행. 아니면 return.
+    white_list = ['JPG', 'jpg', 'gif', 'png', 'PNG', 'webp']
+    image= request.files['image']
+    # if image is None:
+    #     return jsonify({'result': 'false', 'msg': '이미지를 등록해주세요'})
+    name = request.form['name']
+    # if name is None:
+    #     return jsonify({'result': 'false', 'msg': '상품명을 입력해주세요'})
+    price= request.form['price']
+    # if price is None:
+    #     return jsonify({'result': 'false', 'msg': '가격을 입력해주세요.'})
+    url= request.form['url']
+
+    star= request.form['star']
+    # if star is None:
+    #     return jsonify({'result': 'false', 'msg': '별점을 등록해주세요'})
+    content= request.form['content']
+    # if content is None:
+    #     return jsonify({'result': 'false', 'msg': '리뷰내용을 입력해주세요'})
+    #TODO 로그인 되어있는 member_id 가져오기
+    #member_id= request.form['member_id']
+    today = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    extension = image.filename.split('.')[-1]
+    if extension not in white_list:
+        return jsonify({'result': 'fail', 'msg': '올바른 파일 형식이 아닙니다!'})
+    filename = f'file-{today}'
+    save_to = f'static/img/{filename}.{extension}'
+    image.save(save_to)
+
+    doc = {
+        'image': f'{filename}.{extension}',
+        'name': name,
+        'price': price,
+        'star': star,
+        'content': content,
+        'member_id': 1,
+        'regist_date': today
+    }
+    if url is not None:
+        doc['url'] = url
+    insert_review= db.reviews.insert_one(doc)
+    # print(insert_review)
+    # print(insert_review.inserted_id)
+    # insert_id = insert_review.inserted_id
+    #,'review_id':insert_id
+    return jsonify({'result': 'true', 'msg': '등록이 완료되었습니다.'})
+
+##리뷰상세페이지 호출 /review/<id>
+@app.route('/review/<id>', methods=['GET'])
+def show_review():
+    print("'/review', methods=['GET']")
+    print(request.args.get['review_id'])
+    review_id = request.args.get['review_id']
+    print(review_id)
+    review = db.reviews.find_one({'id' : review_id})
+    return render_template('review.html', jsonify({'testmsg': '/review','review':review}))
+
+
+@app.route('/review/update', methods=['POST'])
+def update_review():
+    #TODO 로그인 되어있으면 진행. 아니면 return.
+    review_id = request.form['review_id']
+    review = db.reviews.find_one({'id':review_id})
+    if review is None:
+        #TODO 수정
+        return "/"
+
+    member_id = request.form['member_id']
+    # TODO 로그인 되어있는 member_id와  review.member_id가 같은지 확인
+    # 같으면 내글이니까 수정가능, 아니면 return.
+    image= request.form['image']
+    name = request.form['name']
+    price= request.form['price']
+    url= request.form['url']
+    star= request.form['star']
+    content= request.form['content']
+
+
+    doc = {
+        'image': image,
+        'name': name,
+        'price': price,
+        'star': star,
+        'content': content,
+        'url' : url,
+        'regist_date': datetime.today()
+    }
+    print(doc)
+    db.reviews.update_one({'id': review_id}, {'$set': doc})
+    return jsonify({'msg':"수정완료"})
+
+@app.route('/review/delete', methods=['POST'])
+def delete_review():
+    # TODO 로그인 되어있으면 진행. 아니면 return.
+    review_id = request.form['review_id']
+    review = db.reviews.find_one({'id': review_id})
+    if review is None:
+        #TODO 수정
+        return "/"
+    db.reviews.delete_one({'id': review_id})
+    return jsonify({'msg': '리뷰가 삭제되었습니다.'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
