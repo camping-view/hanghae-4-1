@@ -1,49 +1,62 @@
-from flask import Flask, render_template, jsonify, request
-app = Flask(__name__)
-
 from pymongo import MongoClient
+import jwt
+import datetime
+import hashlib
+from flask import Flask, render_template, jsonify, request, redirect, url_for
+from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
+
+
+app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
+
+SECRET_KEY = 'SPARTA'
+
+# client = MongoClient('내AWS아이피', 27017, username="아이디", password="비밀번호")
 client = MongoClient('localhost', 27017)
 db = client.campingview
 
-## HTML을 주는 부분
+
 @app.route('/')
 def home():
-   return render_template('index.html')
+    return render_template('index.html')
 
 ## 회원가입 페이지
 @app.route('/register')
 def register():
-   return render_template('register.html')
+    return render_template('register.html', msg='회원가입 페이지')
 
-# 회원가입 api
-@app.route('/register/save', methods=['POST'])
-def register_save():
-   id_receive = request.form['id']
-   password_receive = request.form['password']
-   nick_receive = request.form['nick']
-
-   doc = {
-        'user_id':id_receive,
-        'password': password_receive,
-        'nick': nick_receive
-   }
-   db.member.insert_one(doc)
-
-   return jsonify({'result': 'success'})
-
-## 아이디 중복 확인 api
-@app.route('/register/idcheck', methods=['POST'])
-def check_id():
+# 서버 ID 중복체크 API
+@app.route('/register/check_dup', methods=['POST'])
+def check_dup():
     id_receive = request.form['id']
-    exists = bool(db.memeber.find_one({'id':id_receive}))
-    return jsonify({'exists':exists})
-#
-# ## 닉네임 중복 확인 api
-# @app.route('/register/nickcheck', methods=['POST'])
-# def check_nick():
-#     nick_receive = request.form['nick']
-#     exists = bool(db.memeber.find_one({'nick':nick_receive}))
-#     return jsonify({'exists':exists})
+    exists = bool(db.member.find_one({"user_id": id_receive}))
+    # print(value_receive, type_receive, exists)
+    return jsonify({'result': 'success', 'exists': exists})
+
+# 서버 닉네임 중복체크 API
+@app.route('/register/check_dup_nick', methods=['POST'])
+def check_dup_nick():
+    nick_receive = request.form['nick']
+    exists = bool(db.member.find_one({"nick": nick_receive}))
+    # print(value_receive, type_receive, exists)
+    return jsonify({'result': 'success', 'exists': exists})
+
+# 서버 아이디 생성 API
+@app.route('/register/save', methods=['POST'])
+def sign_up():
+    id_receive = request.form['id']
+    nick_receive = request.form['nick']
+    password_receive = request.form['password']
+    password_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+    doc = {
+        "user_id": id_receive,
+        "nick":nick_receive,
+        "password": password_hash
+    }
+    db.member.insert_one(doc)
+    return jsonify({'result': 'success'})
 
 if __name__ == '__main__':
-   app.run('0.0.0.0',port=5000,debug=True)
+    app.run('0.0.0.0', port=5000, debug=True)
