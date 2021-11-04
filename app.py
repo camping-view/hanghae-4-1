@@ -27,19 +27,10 @@ db = client.campingview
 
 @app.route('/')
 def home():
-    token_receive = request.cookies.get('mytoken')
     reviews = list(db.reviews.find({}))
     for i in range(len(reviews)):
         reviews[i]['_id'] = str(reviews[i]['_id'])
-    print(reviews)
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.member.find_one({"user_id": payload["id"]})
-        return render_template('index.html', user_info=user_info, reviews=reviews)
-    except jwt.ExpiredSignatureError:
-        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
-    except jwt.exceptions.DecodeError:
-        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
+    return render_template('index.html',  reviews=reviews)
 
 ## 회원가입 페이지
 @app.route('/register')

@@ -8,3 +8,7 @@ function logout_out() {
 function login(){
     window.location.href="/login"
 }
+
+function home(){
+    window.location.href="/"
+}
