@@ -6,6 +6,10 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 
+import requests
+from bs4 import BeautifulSoup
+
+import os
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -91,16 +95,17 @@ def login_in():
 ##리뷰 등록페이지 호출
 @app.route('/review/insert', methods=['GET'])
 def insert_page():
-    print("'/review/insert', methods=['GET']")
     return render_template('review.html', testmsg='/review/insert')
 
 ##리뷰 등록
 @app.route('/review/insert.json', methods=['POST'])
 def insert_review():
-    print("'/review/insert.json', methods=['POST']")
     #TODO 로그인 되어있으면 진행. 아니면 return.
     white_list = ['JPG', 'jpg', 'gif', 'png', 'PNG', 'webp']
-    image= request.files['image']
+    if 'image' in request.files:
+        image = request.files['image']
+    else:
+        image = request.form['image']
     # if image is None:
     #     return jsonify({'result': 'false', 'msg': '이미지를 등록해주세요'})
     name = request.form['name']
@@ -119,16 +124,9 @@ def insert_review():
     #     return jsonify({'result': 'false', 'msg': '리뷰내용을 입력해주세요'})
     #TODO 로그인 되어있는 member_id 가져오기
     #member_id= request.form['member_id']
-    today = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    extension = image.filename.split('.')[-1]
-    if extension not in white_list:
-        return jsonify({'result': 'fail', 'msg': '올바른 파일 형식이 아닙니다!'})
-    filename = f'file-{today}'
-    save_to = f'static/img/{filename}.{extension}'
-    image.save(save_to)
 
+    today = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     doc = {
-        'image': f'{filename}.{extension}',
         'name': name,
         'price': price,
         'star': star,
@@ -136,6 +134,18 @@ def insert_review():
         'member_id': 1,
         'regist_date': today
     }
+    if 'image' in request.files:
+        extension = image.filename.split('.')[-1]
+        if extension not in white_list:
+            return jsonify({'result': 'false', 'msg': '올바른 파일 형식이 아닙니다!'})
+        filename = f'file-{today}'
+        save_to = f'static/img/{filename}.{extension}'
+        image.save(save_to)
+        doc['image']= f'{filename}.{extension}'
+    else:
+        doc['crawling_image'] = image
+
+
     if url is not None:
         doc['url'] = url
     insert_review= db.reviews.insert_one(doc)
@@ -145,60 +155,82 @@ def insert_review():
     #,'review_id':insert_id
     return jsonify({'result': 'true', 'msg': '등록이 완료되었습니다.'})
 
-##리뷰상세페이지 호출 /review/<id>
-@app.route('/review/<id>', methods=['GET'])
-def show_review():
-    print("'/review', methods=['GET']")
-    print(request.args.get['review_id'])
-    review_id = request.args.get['review_id']
-    print(review_id)
-    review = db.reviews.find_one({'id' : review_id})
-    return render_template('review.html', jsonify({'testmsg': '/review','review':review}))
+#리뷰 등록시 image, 가격 크롤링
+@app.route('/crawling/productInfo', methods=['POST'])
+def crawling_product():
+    url_receive = request.form['product_url']
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
 
+    data = requests.get(url_receive, headers=headers)
+    soup = BeautifulSoup(data.text, 'html.parser')
 
-@app.route('/review/update', methods=['POST'])
-def update_review():
-    #TODO 로그인 되어있으면 진행. 아니면 return.
-    review_id = request.form['review_id']
-    review = db.reviews.find_one({'id':review_id})
-    if review is None:
-        #TODO 수정
-        return "/"
-
-    member_id = request.form['member_id']
-    # TODO 로그인 되어있는 member_id와  review.member_id가 같은지 확인
-    # 같으면 내글이니까 수정가능, 아니면 return.
-    image= request.form['image']
-    name = request.form['name']
-    price= request.form['price']
-    url= request.form['url']
-    star= request.form['star']
-    content= request.form['content']
-
-
-    doc = {
-        'image': image,
-        'name': name,
-        'price': price,
-        'star': star,
-        'content': content,
-        'url' : url,
-        'regist_date': datetime.today()
+    product_info= {
+        'title' : soup.select_one('meta[property="og:title"]')['content'],
+        'image_src' : soup.select_one('meta[property="og:image"]')['content']
     }
-    print(doc)
-    db.reviews.update_one({'id': review_id}, {'$set': doc})
-    return jsonify({'msg':"수정완료"})
 
-@app.route('/review/delete', methods=['POST'])
-def delete_review():
-    # TODO 로그인 되어있으면 진행. 아니면 return.
-    review_id = request.form['review_id']
-    review = db.reviews.find_one({'id': review_id})
-    if review is None:
-        #TODO 수정
-        return "/"
-    db.reviews.delete_one({'id': review_id})
-    return jsonify({'msg': '리뷰가 삭제되었습니다.'})
+    return jsonify({'product_info': product_info})
+
+##리뷰상세페이지 호출 /review/<id>
+# @app.route('/review/<id>', methods=['GET'])
+# def show_review():
+#     print("'/review', methods=['GET']")
+#     print(request.args.get['review_id'])
+#     review_id = request.args.get['review_id']
+#     print(review_id)
+#     review = db.reviews.find_one({'id' : review_id})
+#     return render_template('review.html', jsonify({'testmsg': '/review','review':review}))
+
+
+# @app.route('/review/update', methods=['POST'])
+# def update_review():
+#     #TODO 로그인 되어있으면 진행. 아니면 return.
+#     review_id = request.form['review_id']
+#     review = db.reviews.find_one({'id':review_id})
+#     if review is None:
+#         #TODO 수정
+#         return "/"
+#
+#     member_id = request.form['member_id']
+#     # TODO 로그인 되어있는 member_id와  review.member_id가 같은지 확인
+#     # 같으면 내글이니까 수정가능, 아니면 return.
+#     image= request.form['image']
+#     name = request.form['name']
+#     price= request.form['price']
+#     url= request.form['url']
+#     star= request.form['star']
+#     content= request.form['content']
+#
+#
+#     doc = {
+#         'image': image,
+#         'name': name,
+#         'price': price,
+#         'star': star,
+#         'content': content,
+#         'url' : url,
+#         'regist_date': datetime.today()
+#     }
+#     print(doc)
+#     db.reviews.update_one({'id': review_id}, {'$set': doc})
+#     return jsonify({'msg':"수정완료"})
+#
+# @app.route('/review/delete', methods=['POST'])
+# def delete_review():
+#     # TODO 로그인 되어있으면 진행. 아니면 return.
+#     review_id = request.form['review_id']
+#     review = db.reviews.find_one({'id': review_id})
+#     if review is None:
+#         #TODO 수정
+#         return "/"
+#     db.reviews.delete_one({'id': review_id})
+#     return jsonify({'msg': '리뷰가 삭제되었습니다.'})
+
+#TODO 공감
+# @app.rout('/review/like', methods=['POST'])
+# def like_review():
+#     return jsonify({'msg': '완료'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

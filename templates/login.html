@@ -27,8 +27,6 @@
         <!-- JS -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-        <!--login-->
-        <script src="/js/user-login.js"></script>
 
         <style>
 
@@ -57,19 +55,19 @@
                 let password = $("#input-password").val()
 
                 if (id == "") {
-                    $("#help-id-login").text("아이디를 입력해주세요.")
+                    $("#help-id-header").text("아이디를 입력해주세요.")
                     $("#input-username").focus()
                     return;
                 } else {
-                    $("#help-id-login").text("")
+                    $("#help-id-header").text("")
                 }
 
                 if (password == "") {
-                    $("#help-password-login").text("비밀번호를 입력해주세요.")
+                    $("#help-password-header").text("비밀번호를 입력해주세요.")
                     $("#input-password").focus()
                     return;
                 } else {
-                    $("#help-password-login").text("")
+                    $("#help-password-header").text("")
                 }
                 $.ajax({
                     type: "POST",

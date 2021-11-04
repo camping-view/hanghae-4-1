@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-      <!-- Bulma CSS -->
+    <!-- Bulma CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 
     <!-- Font Awesome CSS -->
@@ -11,66 +11,83 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Stylish&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
+    <!--review.html에 관한 CSS-->
+    <link href="{{ url_for('static', filename='css/review.css') }}" rel="stylesheet">
 
     <!-- js -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-                crossorigin="anonymous"></script>
-    <!--login-->
-    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
-    <title>Title</title>
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <!--header-->
+    <script src="{{ url_for('static', filename='js/header.js') }}"></script>
+    <title>Review Write</title>
+
     <script>
-        $(document).ready(function () {
 
+    $(document).ready(function () {
+            $(".star_rating a").click(function () {
+                $(this).parent().children("a").removeClass("on");
+                $(this).addClass("on").prevAll("a").addClass("on");
+            });
         });
-        function valueCheck(){
-            let check=true
 
-            //상품 이미지
+        function valueCheck() {
+            let check = true
+
+            //상품 이미지 체크 - 업로드, 크롤링 둘다 안했을 경우 경고메시지
             let image = $('#product-image')[0].files[0]
-            if(image==undefined || image==null || image==''){
-                $('#product-image').siblings('.check-msg').text('이미지를 등록해주세요')
-                check=false
+            let privew_image = $('#preview-img').attr('src')
+
+            if (image == undefined || image == null || image == '') {
+                if(privew_image.length<1 ){
+                    $('#product-image').siblings('.check-msg').text('이미지를 등록해주세요')
+                    check = false
+                }
             }
-            //상품명
-            let name=$('#product-name')
-            if(name.val()==0 || name.val().length<1){
+            //상품명 체크
+            let name = $('#product-name')
+            if (name.val() == 0 || name.val().length < 1) {
                 name.siblings('.check-msg').text('상품명을 입력해주세요')
-                check=false
+                check = false
             }
 
-            //상품 가격
-            let price=$('#product-price')
-            if(price.val()==0 || price.val().length<1){
+            //상품 가격 체크
+            let price = $('#product-price')
+            if (price.val() == 0 || price.val().length < 1) {
                 price.siblings('.check-msg').text('상품 가격을 입력해주세요')
-                check=false
+                check = false
             }
 
-            //상품명
-            let content=$('#review-content')
-            if(content.val()==0 || content.val().length<1){
+            //리뷰내용 체크
+            let content = $('#review-content')
+            if (content.val() == 0 || content.val().length < 1) {
                 content.siblings('.check-msg').text('리뷰내용을 입력해주세요')
-                check=false
+                check = false
             }
             return check
         }
-        function insertReview() {
-            if(valueCheck()){
-                let image = $('#product-image')[0].files[0]
-                let review_form = $("#review-form").serializeArray();
 
-                return true;
+
+        function insertReview() {
+            if (valueCheck()) {
+                let image = $('#product-image')[0].files[0]
                 let formData = new FormData();
+                //직접 이미지를 올렸을 때
+                if (image == undefined || image == null || image == '') {
+                    image =  $('#preview-img').attr('src')
+                }
+                formData.append("image", image)
+
+                let review_form = $("#review-form").serializeArray();
                 // 모든 유효성, 중복 체크가 확인 됐을 때
-                review_form.forEach(function(data) {
+                review_form.forEach(function (data) {
                     formData.append(data["name"], data["value"]);
                 });
 
-                // 단일 파일 업로드
-                if (image != undefined) {
-                    formData.append("image", image)
-                }
+                //별점
+                formData.append("star", $(".on").length)
+
                 $.ajax({
                     url: "/review/insert.json",
                     type: "POST",
@@ -79,11 +96,11 @@
                     contentType: false,
                     dataType: "json",
                     success: function (response) {
-                        if(response.result){
+                        if (response.result) {
                             console.log(response.review_id)
                             alert(response["msg"]);
-                            window.location.href="/reivew?review_id="+response.review_id
-                        }else{
+                            //window.location.href = "/reivew?review_id=" + response.review_id
+                        } else {
                             alert(response["msg"])
                         }
 
@@ -91,14 +108,90 @@
                 });
             }
         }
-        function infoOpen(){
+
+        function infoOpen() {
             $('#url-info').append(`<p>상품을 구매한 url주소를 입력해주시면 이미지와 상품명을 입력해줍니다.</p>`)
-            $('#url-button').attr('onclick','infoClose()')
+            $('#url-button').attr('onclick', 'infoClose()')
         }
-        function infoClose(){
+
+        function infoClose() {
             $('#url-info').empty()
-            $('#url-button').attr('onclick','infoOpen()')
+            $('#url-button').attr('onclick', 'infoOpen()')
         }
+
+        /* 상품정보 크롤링 */
+        function crawlingProduct() {
+            let url = $('#product-url')
+            if (url.val().length < 1) {
+                url.siblings('.check-msg').text('url을 입력해주세요.')
+                return true
+            }
+            let preview = $('#preview-img')
+            let name = $('#product-name')
+            let product_image = $('#product-image')
+            if (preview.attr('src').length > 0) {
+                if (confirm("저장된 정보가 사라집니다. url로 정보를 가져오시겠습니까?")) {
+                    //미리보기 이미지, 파일업로드, 상품명 초기화
+                    preview.attr('src', '')
+                    product_image.val('')
+                    name.val('')
+                } else {
+                    return true
+                }
+            }
+            $.ajax({
+                url: "/crawling/productInfo",
+                type: "POST",
+                data: {
+                    product_url: url.val()
+                },
+                success: function (response) {
+                    let product_info = response['product_info']
+                    let imag_src = product_info['image_src']
+                    preview.attr('src', imag_src)
+                    name.val(product_info['title'])
+                    $('#product-url').attr('readonly',true)
+                }
+            });
+        }
+
+        function urlRset() {
+            $("#product-url").removeAttr('readonly').val('');
+            //미리보기 이미지 초기화
+            $('#preview-img').attr('src', '')
+        }
+        function showImage(uploadImage) {
+            let preview = $('#preview-img')
+            if (uploadImage.files && uploadImage.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    preview.attr("src", event.target.result);
+                }
+                reader.readAsDataURL(uploadImage.files[0]);
+            } else {
+                preview.setAttribute("src", '');
+            }
+        }
+
+        function before_logout() {
+            if (confirm('로그아웃을 하시면 입력된 정보가 사라집니다. 로그아웃 하시겠습니까?')) {
+                logout_out()
+            }
+        }
+
+        function like(){
+            $.ajax({
+                url: "/review/like",
+                type: "POST",
+                data: {
+                    review_id : 1
+                },
+                success: function (response) {
+                    //리뷰 클릭 후처리
+                }
+            });
+        }
+
         // function detailReview(id){
         //     $.ajax({
         //         type: "GET",
@@ -109,16 +202,10 @@
         //         }
         //     })
         // }
-        /* 상품정보 크롤링 */
-        function crollingProduct(){
-
-        }
 
     </script>
 </head>
 <body>
-
-    <!-- TODO header부분 뺄수 있는 방법 찾기-->
     <section class="hero is-white">
         <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
             <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
@@ -126,17 +213,21 @@
         </div>
         <div>
             <button onclick="login()">로그인</button>
-            <button onclick="logout_out()">로그아웃</button>
+            <button onclick="before_logout()">로그아웃</button>
         </div>
     </section>
     <form id="review-form" method="post" enctype="multipart/form-data">
         <div class="image-area">
-            <div class="button">
-                <label for="product-image"> </label>
+            <div class="image-preview">
+                <img class="img" id="preview-img" src="" height="300" width="300">
             </div>
-            <input type="file" id="product-image" name="image" onchange="">
-            <p class="check-msg"></p>
+            <div class="image-upload">
+                <label for="product-image"> </label>
+                <input type="file" id="product-image" name="image" onchange="showImage(this)" accept="image/*" multiple>
+                <p class="check-msg"></p>
+            </div>
         </div>
+
         <div class="">
             <label for="product-name">상품명</label>
             <input type="text" id="product-name" name="name" value="" placeholder="상품명을 입력해주세요">
@@ -152,13 +243,21 @@
             <button id="url-button" type="button" onclick="infoOpen()">?</button>
             <div id="url-info"></div>
             <label for="product-url">url</label>
-            <input type="text" id="product-url" class="" name="url" placeholder="상품구매한 url을 입력해주세요">
-            <button onclick="crollingProduct();">입력</button>
+            <input type="url" id="product-url" class="" name="url" placeholder="https://example.com" pattern="https://.*">
+            <button type="button" onclick="crawlingProduct();">입력</button>
+            <button type="button" onclick="urlRset();">초기화</button>
+            <p class="check-msg"></p>
         </div>
         <!--TODO 별점-->
-        <div class="">
-            <input type="number" name="star" value="" max="5" min="1">
+        <div class="star_rating">
+            <a class="on">★</a>
+            <a class="on">★</a>
+            <a class="on">★</a>
+            <a class="on">★</a>
+            <a class="on">★</a>
+            <input type="hidden" id="review-star" name="star" value="5">
         </div>
+
         <div class="">
             <textarea id="review-content" name="content"></textarea>
             <p class="check-msg"></p>
@@ -167,5 +266,7 @@
         <button type="button" onclick="updateReview();">수정하기</button>
         <button type="button" onclick="deleteReview();">삭제하기</button>
     </form>
+    <!--TODO 강의처럼 span으로 바꿔주세요. -->
+    <button type="button" onclick="like()">도움돼요</button>
 </body>
 </html>
