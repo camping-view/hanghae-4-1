@@ -9,6 +9,9 @@
 
     <meta property="og:image" content="{{ url_for('static', filename='ogimg.png') }}"/>
 
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <!-- Bulma CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
@@ -20,6 +23,13 @@
     <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
 
     <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <script src="{{ url_for('static', filename='js/myjs.js') }}"></script>
@@ -199,6 +209,20 @@
             <button onclick="writeReview()">리뷰쓰기</button>
             <button onclick="login()">로그인</button>
             <button onclick="logout_out()">로그아웃</button>
+        </div>
+    </section>
+    <section class="section-index">
+        <div class="card-columns">
+            {% for review in reviews %}
+            <div class="card">
+                <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">{{ review.name }}<span class="card-price">        {{ review.price }}원</span></h5>
+                    <p class="card-comment">{{ review.comment }}</p>
+                    <p class="card-star">별점: {{ review.star }}</p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </section>
 </body>
