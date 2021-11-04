@@ -2,17 +2,22 @@ from pymongo import MongoClient
 import jwt
 import datetime
 import hashlib
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 
 import requests
 from bs4 import BeautifulSoup
 
+import os
+
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
 
+app.secret_key = 'CAMPING-VIEW'
+
+# JWT 사용하기 위해한 SECRET_KEY
 SECRET_KEY = 'CAMPING-VIEW'
 
 # client = MongoClient('내AWS아이피', 27017, username="아이디", password="비밀번호")
@@ -22,16 +27,30 @@ db = client.campingview
 
 @app.route('/')
 def home():
+    token_receive = request.cookies.get('mytoken')
     reviews = list(db.reviews.find({}))
     for i in range(len(reviews)):
         reviews[i]['_id'] = str(reviews[i]['_id'])
     print(reviews)
-    return render_template('index.html', reviews=reviews)
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.member.find_one({"user_id": payload["id"]})
+        return render_template('index.html', user_info=user_info, reviews=reviews)
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
 
 ## 회원가입 페이지
 @app.route('/register')
 def register():
-    return render_template('register.html', msg='회원가입 페이지')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        flash("이미 로그인되어 있습니다.")
+        return redirect(url_for('home'))
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return render_template('register.html', msg='회원가입 페이지')
 
 # 서버 ID 중복체크 API
 @app.route('/register/check_dup', methods=['POST'])
@@ -68,8 +87,13 @@ def sign_up():
 # 로그인 페이지
 @app.route('/login')
 def login():
-    msg = request.args.get("msg")
-    return render_template('login.html', msg='회원가입 페이지')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        flash("이미 로그인되어 있습니다.")
+        return redirect(url_for('home'))
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return render_template('login.html')
 
 # 로그인 API
 @app.route('/login_in', methods=['POST'])
