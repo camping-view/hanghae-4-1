@@ -32,7 +32,7 @@ def register_save():
 
    return jsonify({'result': 'success'})
 
-# ## 아이디 중복 확인 api
+# ## 아이디 중복 확인 apia
 # @app.route('/register/idcheck', methods=['POST'])
 # def check_id():
 #     id_receive = request.form['id']
