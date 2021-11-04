@@ -9,8 +9,6 @@ from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
 
-import os
-
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
@@ -24,7 +22,11 @@ db = client.campingview
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    reviews = list(db.reviews.find({}))
+    for i in range(len(reviews)):
+        reviews[i]['_id'] = str(reviews[i]['_id'])
+    print(reviews)
+    return render_template('index.html', reviews=reviews)
 
 ## 회원가입 페이지
 @app.route('/register')
