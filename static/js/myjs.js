@@ -149,3 +149,6 @@ function toggle_like(post_id, type) {
 
     }
 }
+function home(){
+    window.location.href="/"
+}
