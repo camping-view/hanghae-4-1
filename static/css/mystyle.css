@@ -55,3 +55,29 @@ input::-webkit-calendar-picker-indicator {
 .help {
                 color: gray;
             }
+
+.card {
+    width: 500px;
+    height: 600px;
+    margin: 10px 10px 10px 10px;
+}
+
+.card-img-top{
+    height: 300px;
+}
+
+.card-title{
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.card-price{
+    font-size: 20px;
+    color: gray;
+}
+
+.card-comment{
+    height: 100px;
+    font-size: 20px;
+    color: blue;
+}

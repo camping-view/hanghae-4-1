@@ -32,200 +32,66 @@
             crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-    <script src="{{ url_for('static', filename='js/myjs.js') }}"></script>
     <!--header-->
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 
-
     <script>
-
-
-        //리뷰 불러오기
         $(document).ready(function () {
-            get_reviews()
-            getStar()
+            {#TODO 로그인상테에서 lgoin page, register page차단 및 경고창 띄우기#}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+
+                    alert("{{ messages[-1]}}")
+
+                {% endif %}
+            {% endwith %}
         })
-        //좋아요 불러오기
-        function get_reviews(user_id) {
-            if (user_id == undefined) {
-                user_id = ""
-            }
-            $("#post-box").empty()
-            $.ajax({
-                type: "GET",
-                url: `/get_reviews?user_id_give=${user_id}`,
-                data: {},
-                success: function (response) {
-                    if (response["result"] == "success") {
-                        let reviews = response["reviews"]
-                        for (let i = 0; i < reviews.length; i++) {
-                            let review = reviews[i]
-                            let time_post = new Date(review["date"])
-                            let time_before = time2str(time_post)
-
-                            //좋아요 +/- 기능 구분
-
-                            let class_heart = ""
-                            if (review["heart_by_me"]) {
-                                class_heart = "fa-heart"
-                            } else {
-                                class_heart = "fa-heart-o"
-                            }
-                            // let class_heart = review['heart_by_me'] ? "fa-heart" : "fa-heart-o"
-
-                            let html_temp = `<div class="box" id="${review["_id"]}">
-                                                <article class="media">
-                                                    <div class="media-left">
-                                                        <a class="image is-64x64" href="/user/${review['user_id']}">
-                                                            <img class="is-rounded" src="/static/${review['profile_pic_real']}"
-                                                                 alt="Image">
-                                                        </a>
-                                                    </div>
-                                                    <div class="media-content">
-                                                        <div class="content">
-                                                            <p>
-                                                                <strong>${review['profile_name']}</strong> <small>@${review['user_id']}</small> <small>${time_before}</small>
-                                                                <br>
-                                                                ${review['comment']}
-                                                            </p>
-                                                        </div>
-                                                        <nav class="level is-mobile">
-                                                            <div class="level-left">
-                                                                <a class="level-item is-sparta" aria-label="heart" onclick="toggle_like('${review['_id']}', 'heart')">
-                                                                    <span class="icon is-small"><i class="fa ${class_heart}"
-                                                                                                   aria-hidden="true"></i></span>&nbsp;<span class="like-num">${num2str(review["count_heart"])}</span>
-                                                                </a>
-                                                            </div>
-
-                                                        </nav>
-                                                    </div>
-                                                </article>
-                                            </div>`
-                            $("#review-box").append(html_temp)
-                        }
-                    }
-                }
-            })
-        }
-
-        function time2str(date) {
-            let today = new Date()
-            let time = (today - date) / 1000 / 60  // 분
-
-            if (time < 60) {
-                return parseInt(time) + "분 전"
-            }
-            time = time / 60  // 시간
-            if (time < 24) {
-                return parseInt(time) + "시간 전"
-            }
-            time = time / 24
-            if (time < 7) {
-                return parseInt(time) + "일 전"
-            }
-            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
-        }
-
-        //좋아요 수 k단위
-        function num2str(count) {
-            if (count > 10000) {
-                return parseInt(count / 1000) + "k"
-            }
-            if (count > 500) {
-                return parseInt(count / 100) / 10 + "k"
-            }
-            if (count == 0) {
-                return ""
-            }
-            return count
-        }
-
-        //좋아요 +/- 기능 구현
-        function toggle_like(review_id, type) {
-            console.log(review_id, type)
-            let $a_like = $(`#${review_id} a[aria-label='${type}']`)
-            let $i_like = $a_like.find("i")
-            let class_s = {"heart": "fa-heart", "star": "fa-star", "like": "fa-thumbs-up"}
-            let class_o = {"heart": "fa-heart-o", "star": "fa-star-o", "like": "fa-thumbs-o-up"}
-            if ($i_like.hasClass(class_s[type])) {
-                $.ajax({
-                    type: "POST",
-                    url: "/update_like",
-                    data: {
-                        review_id_give: review_id,
-                        type_give: type,
-                        action_give: "unlike"
-                    },
-                    success: function (response) {
-                        console.log("unlike")
-                        $i_like.addClass(class_o[type]).removeClass(class_s[type])
-                        $a_like.find("span.like-num").text(num2str(response["count"]))
-                    }
-                })
-            } else {
-                $.ajax({
-                    type: "POST",
-                    url: "/update_like",
-                    data: {
-                        review_id_give: review_id,
-                        type_give: type,
-                        action_give: "like"
-                    },
-                    success: function (response) {
-                        console.log("like")
-                        $i_like.addClass(class_s[type]).removeClass(class_o[type])
-                        $a_like.find("span.like-num").text(num2str(response["count"]))
-                    }
-                })
-
-            }
-        }
     </script>
-{#TODO 로그인상테에서 lgoin page, register page차단 및 경고창 띄우기#}
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <script>
-                alert("{{ messages[-1]}}")
-            </script>
-        {% endif %}
-    {% endwith %}
-
 </head>
 
 <body>
-    <section class="hero is-white">
-        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
-            <h1 class="title is-sparta">캠핑 쀼</h1>
-            <h3 class="subtitle is-sparta">내돈내산</h3>
-        </div>
-        <div>
-            <button onclick="writeReview()">리뷰쓰기</button>
-            {#TODO 로그인 여부에따라 버튼 보여주기#}
-            {% if status %}
-                <button onclick="logout_out()">로그아웃</button>
-            {% else %}
-                <button onclick="login()">로그인</button>
-            {% endif %}
-        </div>
-    </section>
-    <section class="section-index">
-        <div class="card-columns">
-            {% for review in reviews %}
+<section class="hero is-white">
+    <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
+        <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
+        <h3 class="subtitle is-sparta">내돈내산</h3>
+    </div>
+    <div>
+        <button onclick="writeReview()">리뷰쓰기</button>
+        {#TODO 로그인 여부에따라 버튼 보여주기#}
+        {% if status %}
+            <button onclick="logout_out()">로그아웃</button>
+        {% else %}
+            <button onclick="login()">로그인</button>
+        {% endif %}
+    </div>
+</section>
+<section class="section-index">
+    <div class="card-columns">
+        {% for review in reviews %}
+            {% if review.crawling_image == '' %}
                 <div class="card">
-                <!--TOOD 왜 review._id하면 object가아닌 string으로 넘기는지 알아보기-->
-                    <a href="/review?review_id={{ review._id }}">
-                        <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ review.name }}<span class="card-price">{{ review.price }}원</span></h5>
-                            <p class="card-comment">{{ review.comment }}</p>
-                            <!--TODO ★로 출력...안되면 말고... -->
-                            <p class="card-star">별점: {{ review.star }}</p>
-                        </div>
-                    </a>
+                    <img class="card-img-top" src="{{ review.image }}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ review.name }}<span
+                                class="card-price">        {{ review.price }}원</span></h5>
+                        <p class="card-comment">{{ review.content }}</p>
+                        <p class="card-star">별점: {{ review.star }}</p>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-    </section>
+            {% else %}
+                <div class="card">
+                    <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ review.name }}<span
+                                class="card-price">        {{ review.price }}원</span></h5>
+                        <p class="card-comment">{{ review.content }}</p>
+                        <p class="card-star">별점: {{ review.star }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
 </body>
 
 </html>
