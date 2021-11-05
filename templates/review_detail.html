@@ -20,10 +20,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
     <!--header-->
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
-
-
 
     <script>
         $(document).ready(function () {
@@ -57,7 +57,6 @@
                 });
             }
         }
-
     </script>
 
 </head>
@@ -82,44 +81,64 @@
                 <h1 class="title is-sparta">캠핑 쀼</h1>
                 <h3 class="subtitle is-sparta">내돈내산</h3>
             </a>
-
         </div>
     </section>
-    <section class="section">
+    <section class="section detail-section">
         <div class="container">
-            <form id="review-detail" method="post" enctype="multipart/form-data">
-                <div class="image-area">
-                    <div class="image-preview">
-                        <img class="img" id="preview-img" src="{{ review.crawling_image }}" height="300" width="300">
+            <div class="box">
+                <form id="review-detail" method="post" enctype="multipart/form-data">
+                    <fieldset class="detail-field" disabled>
+                        <div class="image-area field">
+                            <div class="image-preview">
+                                <img class="img" id="preview-img" src="{{ review.crawling_image }}" height="700" width="500">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label" for="product-name">상품명</label>
+                            <div class="control">
+                                <input type="text" class="input" id="product-name" name="name" value="{{ review.name }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label" for="product-price">가격</label>
+                            <div class="control">
+                                <input type="number" id="product-price" class="input" name="price" value="{{ review.price }}">
+                            </div>
+                        </div>
+                        <div id="review_star" class="field star_rating">
+                            <div class="control">
+                                 {% for x in range(review.star | int) %}
+                                    <a class="on">★</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="field">
+                                <div class="control">
+                                    <textarea class="textarea" id="review-content" name="content">{{ review.content }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        {% if review.url !='' %}
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" for="product-price">구매링크</label>
+                                    <input type="url" class="input" id="product-url" name="url" value="{{ review.url }}">
+                                </div>
+                            </div>
+                        {% endif %}
+                    </fieldset>
+                    <div class="button-area">
+                        {% if review.url !='' %}
+                           <a class="button is-success is-outlined" href="{{ review.url }}" target="_blank">나도 사러가기</a>
+                        {% endif %}
+                        <button type="button" class="button is-danger" onclick="deleteReview('{{ review._id }}')">삭제하기</button>
+                        {%  if my_review %}
+                        {% endif %}
                     </div>
-                </div>
 
-                <div class="">
-                    <label for="product-name">상품명</label>
-                    <input type="text" id="product-name" name="name" value="{{ review.name }}" disabled>
-                </div>
-                <div class="">
-                    <label for="product-price">가격</label>
-                    <input type="number" id="product-price" class="" name="price" value="{{ review.price }}" disabled>
-                </div>
-                <div id="review_star" class="star_rating">
-                    <a id="detail_star" class="on"></a>
-                </div>
-
-                <div class="">
-                    <textarea id="review-content" name="content" disabled>{{ review.content }}</textarea>
-                </div>
-                {%  if my_review %}
-                    <button type="button" onclick="deleteReview('{{ review._id }}')">삭제하기</button>
-                {% endif %}
-                {% if review.url !='' %}
-                    <div class="">
-                        <input type="url" id="product-url" name="url" value="{{ review.url }}" disabled>
-                        <a href="{{ review.url }}" target="_blank">나도 사러가기</a>
-                    </div>
-                {% endif %}
-
-            </form>
+                </form>
+            </div>
         </div>
     </section>
 </body>
