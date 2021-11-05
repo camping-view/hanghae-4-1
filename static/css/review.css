@@ -8,7 +8,7 @@
     text-decoration:none;
 }
 .star_rating a:first-child {margin-left:0;}
-.star_rating a.on {color: #6464a0;}
+.star_rating a.on {color: #facf24;}
 
 input:read-only {
   background-color: #ccc;

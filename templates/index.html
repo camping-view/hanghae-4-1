@@ -83,13 +83,16 @@
         {% for review in reviews %}
             <a href="/review?review_id={{ review._id }}">
                 <div class="card">
-                    <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                    <div class="crad-image-area">
+                        <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">{{ review.name }}<span class="card-price">{{ review.price }}원</span></h5>
-                        <p class="card-comment">{{ review.content }}</p>
-                        {% for x in range(review.star | int) %}
-                            <span>★</span>
-                        {% endfor %}
+                        <div>
+                            <h5 class="card-title">{{ review.name }}</h5>
+                            <p class="card-price">{{ review.price }}원</p>
+                            <p class="card-comment">{{ review.content }}</p>
+                        </div>
+                        <div class="review-star"> {% for x in range(review.star | int) %}★{% endfor %}</div>
                     </div>
                 </div>
             </a>
