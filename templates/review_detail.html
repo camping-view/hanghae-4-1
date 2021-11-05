@@ -132,8 +132,8 @@
                         {% if review.url !='' %}
                            <a class="button is-success is-outlined" href="{{ review.url }}" target="_blank">나도 사러가기</a>
                         {% endif %}
-                        <button type="button" class="button is-danger" onclick="deleteReview('{{ review._id }}')">삭제하기</button>
                         {%  if my_review %}
+                            <button type="button" class="button is-danger" onclick="deleteReview('{{ review._id }}')">삭제하기</button>
                         {% endif %}
                     </div>
 

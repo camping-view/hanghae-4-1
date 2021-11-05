@@ -202,9 +202,7 @@ def review_detail():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         status = payload["id"]  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
         access_info = db.member.find_one({"user_id": status})
-        print(access_info['_id'])
-        print(review['member_id'])
-        if access_info['_id'] is review['member_id']:
+        if str(access_info['_id']) == str(review['member_id']):
             my_review = True
         return render_template('review_detail.html', review=review, my_review=my_review, status=status)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
