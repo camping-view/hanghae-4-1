@@ -25,6 +25,12 @@ body {
     color: #e8344e !important;
 }
 
+.button.is-sparta.is-outlined {
+    background-color: transparent;
+    border-color: #e8344e;
+    color: #e8344e !important;
+}
+
 .modal-content {
     width: 600px;
     max-width: 80%;
