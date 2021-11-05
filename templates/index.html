@@ -50,45 +50,69 @@
 </head>
 
 <body>
-<section class="hero is-white">
+<section class="hero is-success">
     <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
-        <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
-        <h3 class="subtitle is-sparta">내돈내산</h3>
-    </div>
-    <div>
-        {#로그인 여부에따라 버튼 보여주기#}
-        {% if status %}
-            <button onclick="writeReview()">리뷰쓰기</button>
-            <button onclick="logout_out()">로그아웃</button>
-        {% else %}
-            <button onclick="login()">로그인</button>
-        {% endif %}
+        <a href="/">
+            <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
+            <h3 class="subtitle is-sparta">내돈내산</h3>
+        </a>
+
     </div>
 </section>
-<section class="section-index">
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+        </a>
+
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item">
+            </a>
+        </div>
+    </div>
+    </div>
+
+    <div class="navbar-end">
+        <div class="navbar-item">
+            <div class="buttons">
+                {#로그인 여부에따라 버튼 보여주기#}
+                {% if status %}
+                    <a class="button is-warning" onclick="writeReview()">
+                        리뷰작성
+                    </a>
+                    <a class="button is-light" onclick="logout_out()">
+                        로그아웃
+                    </a>
+                {% else %}
+                    <a class="button is-primary" onclick="login()">
+                        <strong>로그인</strong>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    </div>
+</nav>
+<section class="hero is-white">
     <div class="card-columns">
         {% for review in reviews %}
-            {% if review.crawling_image == '' %}
-                <div class="card">
-                    <img class="card-img-top" src="{{ review.image }}" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ review.name }}<span
-                                class="card-price">        {{ review.price }}원</span></h5>
-                        <p class="card-comment">{{ review.content }}</p>
-                        <p class="card-star">별점: {{ review.star }}</p>
-                    </div>
-                </div>
-            {% else %}
+            <a href="/review?review_id={{ review._id }}">
                 <div class="card">
                     <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title">{{ review.name }}<span
-                                class="card-price">        {{ review.price }}원</span></h5>
+                        <h5 class="card-title">{{ review.name }}<span class="card-price">{{ review.price }}원</span></h5>
                         <p class="card-comment">{{ review.content }}</p>
                         <p class="card-star">별점: {{ review.star }}</p>
                     </div>
                 </div>
-            {% endif %}
+            </a>
         {% endfor %}
     </div>
 </section>
