@@ -1,4 +1,7 @@
-.star_rating {font-size:0; letter-spacing:-4px;}
+.star_rating {
+    font-size:20px;
+    letter-spacing:-4px;
+}
 .star_rating a {
     font-size:22px;
     letter-spacing:0;
@@ -35,4 +38,17 @@ input:read-only {
 
 .detail-field{
     cursor : default !important;
+}
+#url-info{
+    font-size: 13px;
+    color: #6e6c6c;
+}
+.box-label{
+    font-size:18px;
+}
+.url-info-btn{
+    text-align: right;
+}
+.review-content{
+    margin-bottom: 20px;
 }

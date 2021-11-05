@@ -27,17 +27,7 @@
 
     <script>
         $(document).ready(function () {
-            reviewStar();
         });
-
-        function reviewStar(){
-            //a태그에 별넣어주기
-            let star=''
-            for(let i=0; i<{{review.star}}; i++){
-                star+='★'
-            }
-            $('#review_star a').text(star)
-        }
         function deleteReview(delete_id) {
             if(confirm('정말 삭제하시겠습니까?')){
                 $.ajax({
