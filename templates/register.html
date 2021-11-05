@@ -3,7 +3,7 @@
 <head>
 
     <!-- Webpage Title -->
-    <title>캠핑 쀼 | 회원가입</title>
+    <title>REGISTER | CAMPING-VIEW</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <meta property="og:title" content="캠핑 쀼"/>
@@ -120,7 +120,6 @@
             let nick = $("#input-nick").val()
             let password = $("#input-password").val()
             let password2 = $("#input-password2").val()
-            console.log(id, password, password2)
 
             if ($("#help-id").hasClass("is-danger")) {
                 alert("아이디를 다시 확인해주세요.")
@@ -176,10 +175,11 @@
 </head>
 <body>
 <section class="hero is-success">
-
     <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
-        <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
-        <h3 class="subtitle is-sparta">내돈내산</h3>
+        <a href="/">
+            <h1 class="title is-sparta">캠핑 쀼</h1>
+            <h3 class="subtitle is-sparta">내돈내산</h3>
+        </a>
     </div>
 </section>
 <section class="section">

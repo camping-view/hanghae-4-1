@@ -17,3 +17,19 @@ input:read-only {
 #detail_star{
     cursor : default;
 }
+
+.container{
+    max-width: 480px;
+    margin:auto
+}
+.course{
+    height: 20px;
+}
+.section {
+    padding: 20px 1rem 1.5rem;
+    max-width: 400px;
+    margin: auto;
+}
+.is-sparta {
+    color: white !important;
+}

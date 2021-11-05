@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>REVIEW WRITE | CAMPING-VIEW</title>
     <meta charset="UTF-8">
     <!-- Bulma CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
@@ -21,7 +22,7 @@
             crossorigin="anonymous"></script>
     <!--header-->
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
-    <title>Review Write</title>
+
 
     <script>
 
@@ -214,64 +215,81 @@
     </script>
 </head>
 <body>
-    <section class="hero is-white">
-        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
-            <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
-            <h3 class="subtitle is-sparta">내돈내산</h3>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')"
+                       ;>리뷰작성</a>
+                    {% if status %}
+                        <a class="button is-light" onclick="logout_out()">로그아웃</a>
+                    {% else %}
+                        <a class="button is-primary" onclick="login()"><strong>로그인</strong></a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div>
-            {#TODO 로그인 여부에따라 버튼 보여주기#}
-            <button onclick="login()">로그인</button>
-            <button onclick="logout_out()">로그아웃</button>
+    </nav>
+    <section class="hero is-success">
+        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
+            <a href="/">
+                <h1 class="title is-sparta">캠핑 쀼</h1>
+                <h3 class="subtitle is-sparta">내돈내산</h3>
+            </a>
+
         </div>
     </section>
-    <form id="review-form" method="post" enctype="multipart/form-data">
-        <div class="image-area">
-            <div class="image-preview">
-                {#  onclick="fileClick()" -> 미리보기영역 클릭시 파일업로드창 띄우기#}
-                <img class="img" id="preview-img" src="" height="300" width="300">
-            </div>
-{#            첨부파일 업로드 주석처리-추후 추가  #}
-{#            <div class="image-upload">#}
-{#                <label for="product-image"> </label>#}
-{#                <input type="file" id="product-image" name="image" onchange="showImage(this)" accept="image/*" multiple>#}
-{#                <p class="check-msg"></p>#}
-{#            </div>#}
-        </div>
+    <section class="section">
+        <div class="container">
+            <form id="review-form" method="post" enctype="multipart/form-data">
+                <div class="image-area">
+                    <div class="image-preview">
+                        {#  onclick="fileClick()" -> 미리보기영역 클릭시 파일업로드창 띄우기#}
+                        <img class="img" id="preview-img" src="" height="300" width="300">
+                    </div>
+        {#            첨부파일 업로드 주석처리-추후 추가  #}
+        {#            <div class="image-upload">#}
+        {#                <label for="product-image"> </label>#}
+        {#                <input type="file" id="product-image" name="image" onchange="showImage(this)" accept="image/*" multiple>#}
+        {#                <p class="check-msg"></p>#}
+        {#            </div>#}
+                </div>
 
-        <div class="">
-            <label for="product-name">상품명</label>
-            <input type="text" id="product-name" name="name" value="" placeholder="상품명을 입력해주세요">
-            <p class="check-msg"></p>
-        </div>
-        <div class="">
-            <label for="product-price">가격</label>
-            <input type="number" id="product-price" class="" name="price" value="" placeholder="상품 가격을 입력해주세요">
-            <p class="check-msg"></p>
-        </div>
-        <div class="">
-            <button id="url-button" type="button" onclick="infoOpen()">?</button>
-            <div id="url-info"></div>
-            <label for="product-url">url</label>
-            <input type="url" id="product-url" class="" name="url" placeholder="https://example.com" pattern="https://.*">
-            <button type="button" onclick="crawlingProduct();">입력</button>
-            <button type="button" onclick="urlRset();">초기화</button>
-            <p class="check-msg"></p>
-        </div>
-        <div class="star_rating">
-            <a class="on">★</a>
-            <a class="on">★</a>
-            <a class="on">★</a>
-            <a class="on">★</a>
-            <a class="on">★</a>
-            <input type="hidden" id="review-star" name="star" value="5">
-        </div>
+                <div class="">
+                    <label for="product-name">상품명</label>
+                    <input type="text" id="product-name" name="name" value="" placeholder="상품명을 입력해주세요">
+                    <p class="check-msg"></p>
+                </div>
+                <div class="">
+                    <label for="product-price">가격</label>
+                    <input type="number" id="product-price" class="" name="price" value="" placeholder="상품 가격을 입력해주세요">
+                    <p class="check-msg"></p>
+                </div>
+                <div class="">
+                    <button id="url-button" type="button" onclick="infoOpen()">?</button>
+                    <div id="url-info"></div>
+                    <label for="product-url">url</label>
+                    <input type="url" id="product-url" class="" name="url" placeholder="https://example.com" pattern="https://.*">
+                    <button type="button" onclick="crawlingProduct();">입력</button>
+                    <button type="button" onclick="urlRset();">초기화</button>
+                    <p class="check-msg"></p>
+                </div>
+                <div class="star_rating">
+                    <a class="on">★</a>
+                    <a class="on">★</a>
+                    <a class="on">★</a>
+                    <a class="on">★</a>
+                    <a class="on">★</a>
+                    <input type="hidden" id="review-star" name="star" value="5">
+                </div>
 
-        <div class="">
-            <textarea id="review-content" name="content"></textarea>
-            <p class="check-msg"></p>
+                <div class="">
+                    <textarea id="review-content" name="content"></textarea>
+                    <p class="check-msg"></p>
+                </div>
+                <button type="button" onclick="insertReview();">등록하기</button>
+            </form>
         </div>
-        <button type="button" onclick="insertReview();">등록하기</button>
-    </form>
+    </section>
 </body>
 </html>

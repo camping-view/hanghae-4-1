@@ -32,7 +32,7 @@ def home():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         status = payload["id"]  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
-        reviews =  list(db.reviews.find({}).sort("regist_date", -1))
+        reviews = list(db.reviews.find({}).sort("regist_date", -1))
         for i in range(len(reviews)):
             reviews[i]['_id'] = str(reviews[i]['_id'])
         return render_template('index.html', reviews=reviews, status=status)
@@ -194,7 +194,6 @@ def insert_review():
 def review_detail():
     # 리뷰 아이디값 있으면 리뷰상세내용 출력
     review_id = ObjectId(request.args.get("review_id"))
-
     token_receive = request.cookies.get('mytoken')
     my_review = False
     review = db.reviews.find_one({'_id': review_id})
@@ -204,9 +203,10 @@ def review_detail():
         access_info = db.member.find_one({"user_id": status})
         if access_info['_id'] is review['member_id']:
             my_review = True
+        return render_template('review_detail.html', review=review, my_review=my_review, status=status)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         my_review = False
-    return render_template('review_detail.html', review=review, my_review=my_review, status=status)
+    return render_template('review_detail.html', review=review, my_review=my_review)
 
 #리뷰 등록시 image, 가격 크롤링
 @app.route('/crawling/productInfo', methods=['POST'])
