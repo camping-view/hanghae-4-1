@@ -32,7 +32,6 @@ def home():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         status = payload["id"]  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
-        user_info = db.users.find_one({"user_id": status}, {"_id": False})
         reviews =  list(db.reviews.find({}).sort("regist_date", -1))
         for i in range(len(reviews)):
             reviews[i]['_id'] = str(reviews[i]['_id'])
@@ -121,6 +120,7 @@ def login_in():
 ##리뷰 등록페이지 호출
 @app.route('/review/insert', methods=['GET'])
 def review():
+    return render_template('review.html')
     token_receive = request.cookies.get('mytoken')
     try:
         jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
@@ -183,9 +183,10 @@ def insert_review():
         # insert_id=db.reviews.insert_one(doc).inserted_id
         #return jsonify({'result': 'true'},{'review_id':str(inserted_id)})
         # 이렇게하면 insert_id와 review table의 _id에 저장된 값이 다름.
-        return jsonify({'result': 'true'})
+        #review.html => response['result'] 로바꾸기
+        return jsonify({'result': True})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return jsonify({'result': 'false','status':'login_fail', 'msg': '리뷰쓰기는 회원에게만 제공되는 서비스입니다.'})
+        return jsonify({'result': False,'status':'login_fail', 'msg': '리뷰쓰기는 회원에게만 제공되는 서비스입니다.'})
 
 
 ## 리뷰 상세페이지
@@ -193,13 +194,23 @@ def insert_review():
 def review_detail():
     # 리뷰 아이디값 있으면 리뷰상세내용 출력
     review_id = ObjectId(request.args.get("review_id"))
+
+    token_receive = request.cookies.get('mytoken')
+    my_review = False
     review = db.reviews.find_one({'_id': review_id})
-    return render_template('review_detail.html', review=review)
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        status = payload["id"]  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
+        access_info = db.member.find_one({"user_id": status})
+        if access_info['_id'] is review['member_id']:
+            my_review = True
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        my_review = False
+    return render_template('review_detail.html', review=review, my_review=my_review)
 
 #리뷰 등록시 image, 가격 크롤링
 @app.route('/crawling/productInfo', methods=['POST'])
 def crawling_product():
-
     #TODO og:image가 없거나 og:title자체가 없을때 처리
     #TODO 쿠팡은 크롤링이 안됨. why??????
     url_receive = request.form['product_url']
@@ -217,7 +228,7 @@ def crawling_product():
 def delete_review():
     review_id = request.args.get("delete_id")
     db.reviews.delete_one({'_id': review_id})
-    return jsonify({'result': 'true', 'msg': '리뷰가 삭제되었습니다.'})
+    return jsonify({'result': True, 'msg': '리뷰가 삭제되었습니다.'})
     # review = db.reviews.find_one({'_id': review_id})
     # token_receive = request.cookies.get('mytoken')
     # try:

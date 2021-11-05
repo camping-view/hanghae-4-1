@@ -62,16 +62,28 @@
 
 </head>
 <body>
-    <section class="hero is-white">
-        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
-            <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
-            <h3 class="subtitle is-sparta">세상을 즐겁게</h3>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    {#로그인 여부에따라 버튼 보여주기#}
+                    <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')";>리뷰작성</a>
+                    {% if status %}
+                        <a class="button is-light" onclick="logout_out()">로그아웃</a>
+                    {% else %}
+                        <a class="button is-primary" onclick="login()"><strong>로그인</strong></a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div>
-            {#TODO 로그인 여부에따라 버튼 보여주기#}
-            <button onclick="writeReview()">리뷰쓰기</button>
-            <button onclick="login()">로그인</button>
-            <button onclick="logout_out()">로그아웃</button>
+    </nav>
+    <section class="hero is-success">
+        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
+            <a href="/">
+                <h1 class="title is-sparta">캠핑 쀼</h1>
+                <h3 class="subtitle is-sparta">내돈내산</h3>
+            </a>
+
         </div>
     </section>
     <form id="review-detail" method="post" enctype="multipart/form-data">
@@ -97,9 +109,9 @@
             <textarea id="review-content" name="content" disabled>{{ review.content }}</textarea>
         </div>
         <!--TODO 내글이면 삭제하기 버튼 보여주기-->
-        {% if my_review %}
+{#        {%  if my_review %}#}
             <button type="button" onclick="deleteReview()">삭제하기</button>
-         {% endif %}
+{#        {% endif %}#}
         {% if review.url !='' %}
             <div class="">
                 <input type="url" id="product-url" name="url" value="{{ review.url }}" disabled>
