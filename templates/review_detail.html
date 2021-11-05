@@ -98,7 +98,7 @@
         {% if my_review %}
             <button type="button" onclick="deleteReview()">삭제하기</button>
          {% endif %}
-        {% if review.url  is not none %}
+        {% if review.url !='' %}
             <div class="">
                 <input type="url" id="product-url" name="url" value="{{ review.url }}" disabled>
                 <a href="{{ review.url }}" target="_blank">나도 사러가기</a>

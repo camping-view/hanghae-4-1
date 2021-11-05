@@ -117,53 +117,61 @@ def review():
 ##리뷰 등록
 @app.route('/review/insert.json', methods=['POST'])
 def insert_review():
-    #TODO 로그인 되어있으면 진행. 아니면 return.
-    white_list = ['JPG', 'jpg', 'gif', 'png', 'PNG', 'webp']
-    if 'image' in request.files:
-        image = request.files['image']
-    else:
-        image = request.form['image']
+    token_receive = request.cookies.get('mytoken')
+    print(token_receive)
+    try:
+        print(33333333333333333333)
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        print(payload)
+        white_list = ['JPG', 'jpg', 'gif', 'png', 'PNG', 'webp']
+        if 'image' in request.files:
+            image = request.files['image']
+        else:
+            image = request.form['image']
 
-    name = request.form['name']
-    price = request.form['price']
-    url = request.form['url']
+        name = request.form['name']
+        price = request.form['price']
+        url = request.form['url']
 
-    star = int(request.form['star'])
+        star = int(request.form['star'])
 
-    content = request.form['content']
+        content = request.form['content']
 
-    #TODO 로그인 되어있는 member테이블의 '_id' 가져오기
-    #member_id= request.form['member_id']
+        # TODO 로그인 되어있는 member테이블의 '_id' 가져오기
+        # member_id= request.form['member_id']
 
-    today = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    doc = {
-        'name': name,
-        'price': price,
-        'star': star,
-        'content': content,
-        'member_id': 1,
-        'regist_date': today
-    }
+        today = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        doc = {
+            'name': name,
+            'price': price,
+            'star': star,
+            'content': content,
+            'member_id': 1,
+            'regist_date': today
+        }
 
-    if 'image' in request.files:
-        extension = image.filename.split('.')[-1]
-        if extension not in white_list:
-            return jsonify({'result': 'false', 'msg': '올바른 파일 형식이 아닙니다!'})
-        filename = f'file-{today}'
-        save_to = f'static/{filename}.{extension}'
-        image.save(save_to)
-        doc['image'] = f'{filename}.{extension}'
-    else:
-        #TODO 크롤링도 이미지 저장하기
-        os.system("curl " + url + " > test.jpg")
-        doc['crawling_image'] = image
+        if 'image' in request.files:
+            extension = image.filename.split('.')[-1]
+            if extension not in white_list:
+                return jsonify({'result': 'false', 'msg': '올바른 파일 형식이 아닙니다!'})
+            filename = f'file-{today}'
+            save_to = f'static/img/{filename}.{extension}'
+            image.save(save_to)
+            doc['image'] = f'{filename}.{extension}'
+        else:
+            doc['crawling_image'] = image
 
-    if url is not None:
-        doc['url'] = url
+        if url is not None:
+            doc['url'] = url
 
-    insert_id= db.reviews.insert_one(doc).inserted_id
-    # TODO insert_id값 확인
-    return jsonify({'result': 'true', 'review_id': str(insert_id)})
+        insert_id = db.reviews.insert_one(doc).inserted_id
+        # TODO insert_id값 확인
+        return jsonify({'result': 'true', 'review_id': str(insert_id)})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        print(1111111111111111111111111111111)
+        flash("리뷰쓰기는 회원에게만 제공되는 서비스입니다.")
+        return redirect(url_for('home'))
+
 
 ## 리뷰 상세페이지
 @app.route('/review', methods=['GET'])
