@@ -34,16 +34,22 @@
 
         function valueCheck() {
             let check = true
-
+            /*
             //상품 이미지 체크 - 업로드, 크롤링 둘다 안했을 경우 경고메시지
             let image = $('#product-image')[0].files[0]
-            let privew_image = $('#preview-img').attr('src')
 
             if (image == undefined || image == null || image == '') {
                 if(privew_image.length<1 ){
                     $('#product-image').siblings('.check-msg').text('이미지를 등록해주세요')
                     check = false
                 }
+            }
+            */
+            //이미지 크롤링 안되어있을 때
+            let privew_image = $('#preview-img').attr('src')
+            if (privew_image.length < 1) {
+                $('#product-image').siblings('.check-msg').text('이미지를 등록해주세요')
+                check = false
             }
             //상품명 체크
             let name = $('#product-name')
@@ -71,14 +77,16 @@
 
         function insertReview() {
             if (valueCheck()) {
-                let image = $('#product-image')[0].files[0]
+
                 let formData = new FormData();
-                //직접 이미지를 올렸을 때
+                /*
+                //파일업로드 처리
+                let image = $('#product-image')[0].files[0]
                 if (image == undefined || image == null || image == '') {
                     image =  $('#preview-img').attr('src')
                 }
                 formData.append("image", image)
-
+                */
                 let review_form = $("#review-form").serializeArray();
                 // 모든 유효성, 중복 체크가 확인 됐을 때
                 review_form.forEach(function (data) {
@@ -88,6 +96,9 @@
                 //별점
                 formData.append("star", $(".on").length)
 
+                //이미지 추가
+                formData.append("image",$('#preview-img').attr('src'))
+
                 $.ajax({
                     url: "/review/insert.json",
                     type: "POST",
@@ -96,7 +107,6 @@
                     contentType: false,
                     dataType: "json",
                     success: function (response) {
-                        console.log(response)
                         if (response.result=='true') {
                             alert("등록이 완료되었습니다")
                             window.location.href="/"
@@ -137,17 +147,19 @@
             }
             let preview = $('#preview-img')
             let name = $('#product-name')
+            /* 업로드된 파일이 있을경우 파일 삭제
             let product_image = $('#product-image')
             if (preview.attr('src').length > 0) {
-                if (confirm("저장된 정보가 사라집니다. url로 정보를 가져오시겠습니까?")) {
+                //미리보기 이미지, 파일업로드, 상품명 초기화
+                if (confirm("입력된 이미지, 상품명 정보가 사라집니다.\nurl로 정보를 가져오시겠습니까?")) {
                     //미리보기 이미지, 파일업로드, 상품명 초기화
                     preview.attr('src', '')
-                    product_image.val('')
+                   // product_image.val('')
                     name.val('')
                 } else {
                     return true
                 }
-            }
+            }*/
             $.ajax({
                 url: "/crawling/productInfo",
                 type: "POST",
@@ -176,6 +188,16 @@
             }
         }
 
+        function before_logout() {
+            if (confirm('로그아웃을 하시면 입력된 정보가 사라집니다. 로그아웃 하시겠습니까?')) {
+                logout_out()
+            }
+        }
+        /*파일업로드 부분
+        function fileClick() {
+            $('#product-image').click()
+        }
+
         function showImage(uploadImage) {
             let preview = $('#preview-img')
             if (uploadImage.files && uploadImage.files[0]) {
@@ -188,16 +210,7 @@
                 preview.attr("src", '');
             }
         }
-
-        function before_logout() {
-            if (confirm('로그아웃을 하시면 입력된 정보가 사라집니다. 로그아웃 하시겠습니까?')) {
-                logout_out()
-            }
-        }
-        function fileClick(){
-            $('#product-image').click()
-        }
-
+        */
     </script>
 </head>
 <body>
@@ -215,13 +228,15 @@
     <form id="review-form" method="post" enctype="multipart/form-data">
         <div class="image-area">
             <div class="image-preview">
-                <img class="img" id="preview-img" src="" height="300" width="300" onclick="fileClick()">
+                {#  onclick="fileClick()" -> 미리보기영역 클릭시 파일업로드창 띄우기#}
+                <img class="img" id="preview-img" src="" height="300" width="300">
             </div>
-            <div class="image-upload">
-                <label for="product-image"> </label>
-                <input type="file" id="product-image" name="image" onchange="showImage(this)" accept="image/*" multiple>
-                <p class="check-msg"></p>
-            </div>
+{#            첨부파일 업로드 주석처리-추후 추가  #}
+{#            <div class="image-upload">#}
+{#                <label for="product-image"> </label>#}
+{#                <input type="file" id="product-image" name="image" onchange="showImage(this)" accept="image/*" multiple>#}
+{#                <p class="check-msg"></p>#}
+{#            </div>#}
         </div>
 
         <div class="">

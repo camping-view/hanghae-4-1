@@ -38,7 +38,7 @@ def home():
             reviews[i]['_id'] = str(reviews[i]['_id'])
         return render_template('index.html', reviews=reviews, status=status)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        reviews = list(db.reviews.find({}))
+        reviews = list(db.reviews.find({}).sort("regist_date", -1))
         for i in range(len(reviews)):
             reviews[i]['_id'] = str(reviews[i]['_id'])
         return render_template('index.html', reviews=reviews)
