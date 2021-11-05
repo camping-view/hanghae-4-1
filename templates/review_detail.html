@@ -37,17 +37,16 @@
             }
             $('#review_star a').text(star)
         }
-        function deleteReview() {
+        function deleteReview(delete_id) {
             if(confirm('정말 삭제하시겠습니까?')){
                 $.ajax({
                     type   : "POST"
-                    ,url    : "/review/delete.json"
-                    ,dataType: "json"
+                    ,url    : "/review/delete"
                     ,data   : {
-                         delete_id : '{{review._id}}'
+                         delete_id : delete_id
                     }
                     ,success: function (response) {
-                         if(response['result']=='true'){
+                         if(response['result']){
                              alert(response['msg'])
                              window.location.href = "/"
                          }else {
@@ -110,7 +109,7 @@
         </div>
         <!--TODO 내글이면 삭제하기 버튼 보여주기-->
 {#        {%  if my_review %}#}
-            <button type="button" onclick="deleteReview()">삭제하기</button>
+            <button type="button" onclick="deleteReview('{{ review._id }}')">삭제하기</button>
 {#        {% endif %}#}
         {% if review.url !='' %}
             <div class="">

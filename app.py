@@ -224,21 +224,20 @@ def crawling_product():
     return jsonify({'title': title, 'image_src': image_src})
 
 ##리뷰 삭제
-@app.route('/review/delete.json', methods=['POST'])
+@app.route('/review/delete', methods=['POST'])
 def delete_review():
-    review_id = request.args.get("delete_id")
-    db.reviews.delete_one({'_id': review_id})
-    return jsonify({'result': True, 'msg': '리뷰가 삭제되었습니다.'})
-    # review = db.reviews.find_one({'_id': review_id})
-    # token_receive = request.cookies.get('mytoken')
-    # try:
-    #     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-    #     member_id = db.member.find_one(({'user_id': payload['id']})['_id'])
-    #     if str(member_id) is review['member_id']:
-    #         db.reviews.delete_one({'_id': review_id})
-    #         return jsonify({'result':'true', 'msg': '리뷰가 삭제되었습니다.'})
-    # except:
-    #     return jsonify({'result':'false','msg': '본인의 리뷰만 삭제할 수 있습니다.'})
+    review_id = ObjectId(request.form["delete_id"])
+    review = db.reviews.find_one({'_id': review_id})
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        member_id = db.member.find_one(({'user_id': payload['id']})['_id'])
+        if str(member_id) == review['member_id']:
+            db.reviews.delete_one({'_id': review_id})
+            return jsonify({'result': True, 'msg': '리뷰가 삭제되었습니다.'})
+    except:
+        return jsonify({'result': False,'msg': '본인의 리뷰만 삭제할 수 있습니다.'})
+
 
 
 ##리뷰수정
