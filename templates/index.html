@@ -68,15 +68,27 @@
 <section class="section-index">
     <div class="card-columns">
         {% for review in reviews %}
+            {% if review.crawling_image == '' %}
                 <div class="card">
-                    <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                    <img class="card-img-top" src="{{ review.image }}" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title">{{ review.name }}</h5>
-                        <p class="card-price">{{ review.price }}원</p>
+                        <h5 class="card-title">{{ review.name }}<span
+                                class="card-price">        {{ review.price }}원</span></h5>
                         <p class="card-comment">{{ review.content }}</p>
                         <p class="card-star">별점: {{ review.star }}</p>
                     </div>
                 </div>
+            {% else %}
+                <div class="card">
+                    <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ review.name }}<span
+                                class="card-price">        {{ review.price }}원</span></h5>
+                        <p class="card-comment">{{ review.content }}</p>
+                        <p class="card-star">별점: {{ review.star }}</p>
+                    </div>
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
 </section>
