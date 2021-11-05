@@ -21,17 +21,27 @@ app.secret_key = 'CAMPING-VIEW'
 # JWT 사용하기 위해한 SECRET_KEY
 SECRET_KEY = 'CAMPING-VIEW'
 
-#client = MongoClient('13.125.154.61', 27017, username="test", password="test")
+# client = MongoClient('13.125.154.61', 27017, username="test", password="test")
 client = MongoClient('localhost', 27017)
 db = client.campingview
 
 
 @app.route('/')
 def home():
-    reviews = list(db.reviews.find({}).sort("regist_date", -1))
-    for i in range(len(reviews)):
-        reviews[i]['_id'] = str(reviews[i]['_id'])
-    return render_template('index.html',  reviews=reviews)
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        status = payload["id"]  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
+        user_info = db.users.find_one({"user_id": status}, {"_id": False})
+        reviews =  list(db.reviews.find({}).sort("regist_date", -1))
+        for i in range(len(reviews)):
+            reviews[i]['_id'] = str(reviews[i]['_id'])
+        return render_template('index.html', reviews=reviews, status=status)
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        reviews = list(db.reviews.find({}))
+        for i in range(len(reviews)):
+            reviews[i]['_id'] = str(reviews[i]['_id'])
+        return render_template('index.html', reviews=reviews)
 
 ## 회원가입 페이지
 @app.route('/register')
@@ -176,6 +186,7 @@ def insert_review():
         return jsonify({'result': 'true'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return jsonify({'result': 'false','status':'login_fail', 'msg': '리뷰쓰기는 회원에게만 제공되는 서비스입니다.'})
+
 
 ## 리뷰 상세페이지
 @app.route('/review', methods=['GET'])
