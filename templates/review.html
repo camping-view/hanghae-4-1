@@ -109,7 +109,7 @@
                     contentType: false,
                     dataType: "json",
                     success: function (response) {
-                        if (response.result=='true') {
+                        if (response['result']) {
                             alert("등록이 완료되었습니다")
                             window.location.href="/"
                             //TODO review_id값 가져와서 해주면 좋을 것 같음
