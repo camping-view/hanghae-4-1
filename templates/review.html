@@ -96,14 +96,23 @@
                     contentType: false,
                     dataType: "json",
                     success: function (response) {
-                        if (response.result) {
-                            console.log(response.review_id)
-                            alert(response["등록이 완료되었습니다"])
-                            //window.location.href = "/reivew?review_id="+response.review_id
+                        console.log(response)
+                        if (response.result=='true') {
+                            alert("등록이 완료되었습니다")
+                            window.location.href="/"
+                            //TODO review_id값 가져와서 해주면 좋을 것 같음
+                            // let review_id = response['review_id']
+                            //window.location.href = "/reivew?review_id="+review_id
                         } else {
-                            alert(response["msg"])
+                            alert(response['msg'])
+                            if(response['status']=='login_fail'){
+                                window.location.href="/"
+                            }
                         }
-
+                    },
+                    fail : function(data, textStatus, errorThrown){
+                        alert('다시 이용해주세요')
+                        window.location.href="/"
                     }
                 });
             }

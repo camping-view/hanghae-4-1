@@ -47,9 +47,11 @@
                          delete_id : '{{review._id}}'
                     }
                     ,success: function (response) {
-                         if(response['result']){
+                         if(response['result']=='true'){
                              alert(response['msg'])
                              window.location.href = "/"
+                         }else {
+                             alert(response['msg'])
                          }
                     }
                 });

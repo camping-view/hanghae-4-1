@@ -21,14 +21,14 @@ app.secret_key = 'CAMPING-VIEW'
 # JWT 사용하기 위해한 SECRET_KEY
 SECRET_KEY = 'CAMPING-VIEW'
 
-client = MongoClient('13.125.154.61', 27017, username="test", password="test")
-# client = MongoClient('localhost', 27017)
+#client = MongoClient('13.125.154.61', 27017, username="test", password="test")
+client = MongoClient('localhost', 27017)
 db = client.campingview
 
 
 @app.route('/')
 def home():
-    reviews = list(db.reviews.find({}))
+    reviews = list(db.reviews.find({}).sort("regist_date", -1))
     for i in range(len(reviews)):
         reviews[i]['_id'] = str(reviews[i]['_id'])
     return render_template('index.html',  reviews=reviews)
@@ -111,7 +111,14 @@ def login_in():
 ##리뷰 등록페이지 호출
 @app.route('/review/insert', methods=['GET'])
 def review():
-    return render_template('review.html', testmsg='/review/insert')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        return render_template('review.html')
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        flash("리뷰쓰기는 회원에게만 제공되는 서비스입니다.")
+        return redirect(url_for('home'))
+
 
 
 ##리뷰 등록
@@ -120,14 +127,14 @@ def insert_review():
     token_receive = request.cookies.get('mytoken')
     print(token_receive)
     try:
-        print(33333333333333333333)
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        print(payload)
-        white_list = ['JPG', 'jpg', 'gif', 'png', 'PNG', 'webp']
-        if 'image' in request.files:
-            image = request.files['image']
-        else:
-            image = request.form['image']
+        write_id = str(db.member.find_one(({'user_id': payload['id']}))['_id'])
+        image = request.form['image']
+        # white_list = ['JPG', 'jpg', 'gif', 'png', 'PNG', 'webp']
+        # if 'image' in request.files:
+        #     image = request.files['image']
+        # else:
+        #     image = request.form['image']
 
         name = request.form['name']
         price = request.form['price']
@@ -137,54 +144,46 @@ def insert_review():
 
         content = request.form['content']
 
-        # TODO 로그인 되어있는 member테이블의 '_id' 가져오기
-        # member_id= request.form['member_id']
-
         today = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         doc = {
             'name': name,
             'price': price,
             'star': star,
             'content': content,
-            'member_id': 1,
+            'member_id': write_id,
             'regist_date': today
         }
+        doc['crawling_image'] = image
 
-        if 'image' in request.files:
-            extension = image.filename.split('.')[-1]
-            if extension not in white_list:
-                return jsonify({'result': 'false', 'msg': '올바른 파일 형식이 아닙니다!'})
-            filename = f'file-{today}'
-            save_to = f'static/img/{filename}.{extension}'
-            image.save(save_to)
-            doc['image'] = f'{filename}.{extension}'
-        else:
-            doc['crawling_image'] = image
+        # if 'image' in request.files:
+        #     extension = image.filename.split('.')[-1]
+        #     if extension not in white_list:
+        #         return jsonify({'result': 'false', 'msg': '올바른 파일 형식이 아닙니다!'})
+        #     filename = f'file-{today}'
+        #     save_to = f'static/img/{filename}.{extension}'
+        #     image.save(save_to)
+        #     doc['image'] = f'{filename}.{extension}'
+        # else:
+        #     doc['crawling_image'] = image
 
         if url is not None:
             doc['url'] = url
 
-        insert_id = db.reviews.insert_one(doc).inserted_id
-        # TODO insert_id값 확인
-        return jsonify({'result': 'true', 'review_id': str(insert_id)})
+        db.reviews.insert_one(doc)
+        # insert_id=db.reviews.insert_one(doc).inserted_id
+        #return jsonify({'result': 'true'},{'review_id':str(inserted_id)})
+        # 이렇게하면 insert_id와 review table의 _id에 저장된 값이 다름.
+        return jsonify({'result': 'true'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        print(1111111111111111111111111111111)
-        flash("리뷰쓰기는 회원에게만 제공되는 서비스입니다.")
-        return redirect(url_for('home'))
-
+        return jsonify({'result': 'false','status':'login_fail', 'msg': '리뷰쓰기는 회원에게만 제공되는 서비스입니다.'})
 
 ## 리뷰 상세페이지
 @app.route('/review', methods=['GET'])
 def review_detail():
     # 리뷰 아이디값 있으면 리뷰상세내용 출력
-
     review_id = ObjectId(request.args.get("review_id"))
     review = db.reviews.find_one({'_id': review_id})
-
-    #TODO 내글인지확인
-    # if review.member_id == login한 member_id :
-    my_review = 'true'
-    return render_template('review_detail.html', review=review, my_review=my_review)
+    return render_template('review_detail.html', review=review)
 
 #리뷰 등록시 image, 가격 크롤링
 @app.route('/crawling/productInfo', methods=['POST'])
@@ -205,19 +204,22 @@ def crawling_product():
 ##리뷰 삭제
 @app.route('/review/delete.json', methods=['POST'])
 def delete_review():
-    # TODO 로그인 되어있으면 진행. 아니면 return.
-    review_id = ObjectId(request.args.get("delete_id"))
-    print(type(review_id)) #object로 타입변환 됐는데 delete가 안됨
-
-    # find_review = db.reviews.find_one({'_id': review_id})
-    # if find_review is None:
-    #     return redirect(url_for('home'), jsonify({'msg': '해당 리뷰가 없습니다.'}))
-
-    # TODO 내 글이 아니면 return redirect('/review?'+give_id, jsonify({'msg': '본인의 리뷰만 삭제할 수 있습니다.'}))
+    review_id = request.args.get("delete_id")
     db.reviews.delete_one({'_id': review_id})
-    print('test')
-    return jsonify({'result':'true', 'msg': '리뷰가 삭제되었습니다.'})
+    return jsonify({'result': 'true', 'msg': '리뷰가 삭제되었습니다.'})
+    # review = db.reviews.find_one({'_id': review_id})
+    # token_receive = request.cookies.get('mytoken')
+    # try:
+    #     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    #     member_id = db.member.find_one(({'user_id': payload['id']})['_id'])
+    #     if str(member_id) is review['member_id']:
+    #         db.reviews.delete_one({'_id': review_id})
+    #         return jsonify({'result':'true', 'msg': '리뷰가 삭제되었습니다.'})
+    # except:
+    #     return jsonify({'result':'false','msg': '본인의 리뷰만 삭제할 수 있습니다.'})
 
+
+##리뷰수정
 # @app.route('/review/update', methods=['POST'])
 # def update_review():
 #     #TODO 로그인 되어있으면 진행. 아니면 return.
