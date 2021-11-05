@@ -65,7 +65,6 @@
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="buttons">
-                    {#로그인 여부에따라 버튼 보여주기#}
                     <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')";>리뷰작성</a>
                     {% if status %}
                         <a class="button is-light" onclick="logout_out()">로그아웃</a>
@@ -107,10 +106,9 @@
         <div class="">
             <textarea id="review-content" name="content" disabled>{{ review.content }}</textarea>
         </div>
-        <!--TODO 내글이면 삭제하기 버튼 보여주기-->
-{#        {%  if my_review %}#}
+        {%  if my_review %}
             <button type="button" onclick="deleteReview('{{ review._id }}')">삭제하기</button>
-{#        {% endif %}#}
+        {% endif %}
         {% if review.url !='' %}
             <div class="">
                 <input type="url" id="product-url" name="url" value="{{ review.url }}" disabled>

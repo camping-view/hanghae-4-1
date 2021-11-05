@@ -120,11 +120,12 @@ def login_in():
 ##리뷰 등록페이지 호출
 @app.route('/review/insert', methods=['GET'])
 def review():
-    return render_template('review.html')
     token_receive = request.cookies.get('mytoken')
     try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        status = payload["id"]
         jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        return render_template('review.html')
+        return render_template('review.html', status=status)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         flash("리뷰쓰기는 회원에게만 제공되는 서비스입니다.")
         return redirect(url_for('home'))
@@ -135,7 +136,6 @@ def review():
 @app.route('/review/insert.json', methods=['POST'])
 def insert_review():
     token_receive = request.cookies.get('mytoken')
-    print(token_receive)
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         write_id = str(db.member.find_one(({'user_id': payload['id']}))['_id'])
@@ -206,7 +206,7 @@ def review_detail():
             my_review = True
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         my_review = False
-    return render_template('review_detail.html', review=review, my_review=my_review)
+    return render_template('review_detail.html', review=review, my_review=my_review, status=status)
 
 #리뷰 등록시 image, 가격 크롤링
 @app.route('/crawling/productInfo', methods=['POST'])
