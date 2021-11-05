@@ -28,10 +28,21 @@ db = client.campingview
 
 @app.route('/')
 def home():
-    reviews = list(db.reviews.find({}))
-    for i in range(len(reviews)):
-        reviews[i]['_id'] = str(reviews[i]['_id'])
-    return render_template('index.html',  reviews=reviews)
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        status = payload["id"]  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
+        user_info = db.users.find_one({"user_id": status}, {"_id": False})
+        reviews = list(db.reviews.find({}))
+        for i in range(len(reviews)):
+            reviews[i]['_id'] = str(reviews[i]['_id'])
+        return render_template('index.html', reviews=reviews, status=status)
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        reviews = list(db.reviews.find({}))
+        for i in range(len(reviews)):
+            reviews[i]['_id'] = str(reviews[i]['_id'])
+        return render_template('index.html', reviews=reviews)
+
 
 ## 회원가입 페이지
 @app.route('/register')

@@ -181,7 +181,7 @@
             }
         }
     </script>
-{#TODO 이게 어떤코드인지?#}
+{#TODO 로그인상테에서 lgoin page, register page차단 및 경고창 띄우기#}
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             <script>
@@ -201,8 +201,11 @@
         <div>
             <button onclick="writeReview()">리뷰쓰기</button>
             {#TODO 로그인 여부에따라 버튼 보여주기#}
-            <button onclick="login()">로그인</button>
-            <button onclick="logout_out()">로그아웃</button>
+            {% if status %}
+                <button onclick="logout_out()">로그아웃</button>
+            {% else %}
+                <button onclick="login()">로그인</button>
+            {% endif %}
         </div>
     </section>
     <section class="section-index">
