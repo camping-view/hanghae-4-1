@@ -33,6 +33,7 @@ input:read-only {
 }
 .button-area{
     margin-top: 30px;
+    margin-bottom: 20px;
     float: right;
 }
 
