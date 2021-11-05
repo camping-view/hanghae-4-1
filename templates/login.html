@@ -1,149 +1,129 @@
 <!doctype html>
 <html lang="en">
-    <head>
+<head>
 
-        <!-- Webpage Title -->
-        <title>Log In | CAMPING-VIEW</title>
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-        <meta property="og:title" content="og title"/>
-        <meta property="og:description" content="og description"/>
-        <meta property="og:image" content="{{ url_for('static', filename='ogimg.png') }}"/>
+    <!-- Webpage Title -->
+    <title>Log In | CAMPING-VIEW</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <meta property="og:title" content="og title"/>
+    <meta property="og:description" content="og description"/>
+    <meta property="og:image" content="{{ url_for('static', filename='ogimg.png') }}"/>
 
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bulma CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 
-        <!-- Font Awesome CSS -->
-        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-        <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Stylish&display=swap" rel="stylesheet">
-        <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Stylish&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
 
-        <!-- JS -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
-        <style>
+    <script>
 
+        function sign_in() {
+            let id = $("#input-username").val()
+            let password = $("#input-password").val()
 
-            .title {
-                font-weight: 800;
-                font-size: 5rem;
-                font-family: 'Stylish', sans-serif;
+            if (id == "") {
+                $("#help-id-header").text("아이디를 입력해주세요.")
+                $("#input-username").focus()
+                return;
+            } else {
+                $("#help-id-header").text("")
             }
 
-            .subtitle {
-                font-family: 'Gamja Flower', cursive;
-                font-size: 2rem;
-
+            if (password == "") {
+                $("#help-password-header").text("비밀번호를 입력해주세요.")
+                $("#input-password").focus()
+                return;
+            } else {
+                $("#help-password-header").text("")
             }
-
-            .help {
-                color: gray;
-            }
-        </style>
-
-        <script>
-
-            function sign_in() {
-                let id = $("#input-username").val()
-                let password = $("#input-password").val()
-
-                if (id == "") {
-                    $("#help-id-header").text("아이디를 입력해주세요.")
-                    $("#input-username").focus()
-                    return;
-                } else {
-                    $("#help-id-header").text("")
-                }
-
-                if (password == "") {
-                    $("#help-password-header").text("비밀번호를 입력해주세요.")
-                    $("#input-password").focus()
-                    return;
-                } else {
-                    $("#help-password-header").text("")
-                }
-                $.ajax({
-                    type: "POST",
-                    url: "/login_in",
-                    data: {
-                        id: id,
-                        password: password
-                    },
-                    success: function (response) {
-                        if (response['result'] == 'success') {
-                            $.cookie('mytoken', response['token'], {path: '/'});
-                            window.location.replace("/")
-                        } else {
-                            alert(response['msg'])
-                        }
+            $.ajax({
+                type: "POST",
+                url: "/login_in",
+                data: {
+                    id: id,
+                    password: password
+                },
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        $.cookie('mytoken', response['token'], {path: '/'});
+                        window.location.replace("/")
+                    } else {
+                        alert(response['msg'])
                     }
-                });
-            }
+                }
+            });
+        }
 
 
-        </script>
+    </script>
 
-    </head>
-    <body>
-        <section class="hero is-white">
-            <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
-                <h1 class="title is-sparta">캠핑 쀼</h1>
-                <h3 class="subtitle is-sparta">캠핑용품 리뷰~</h3>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <div class="box" style="max-width: 480px;margin:auto">
-                    <article class="media">
-                        <div class="media-content">
-                            <div class="content">
-                                <div class="field has-addons">
-                                    <div class="control has-icons-left" style="width:100%">
-                                        <input id="input-username" class="input" type="text" placeholder="아이디">
-                                        <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
-                                    </div>
-                                </div>
-
-                                <div class="field">
-                                    <div class="control has-icons-left">
-                                        <input id="input-password" class="input" type="password" placeholder="비밀번호">
-                                        <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
-                                    </div>
-                                </div>
-
-
+</head>
+<body>
+<section class="hero is-white">
+    <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
+        <h1 class="title is-sparta">캠핑 쀼</h1>
+        <h3 class="subtitle is-sparta">내돈내산</h3>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="box" style="max-width: 480px;margin:auto">
+            <article class="media">
+                <div class="media-content">
+                    <div class="content">
+                        <div class="field has-addons">
+                            <div class="control has-icons-left" style="width:100%">
+                                <input id="input-username" class="input" type="text" placeholder="아이디">
+                                <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
                             </div>
-                            <div id="div-sign-in-or-up" class="has-text-centered">
-                                <nav class="level is-mobile">
-                                    <button class="level-item button is-sparta" onclick="sign_in()">
-                                        로그인
-                                    </button>
-
-                                </nav>
-                                <hr>
-                                <h4 class="mb-3">아직 회원이 아니라면</h4>
-                                <nav class="level is-mobile">
-
-                                    <button class="level-item button is-sparta is-outlined"
-                                            onclick=window.location.href="/register">
-                                        회원가입하기
-                                    </button>
-                                </nav>
-                            </div>
-
                         </div>
-                    </article>
+
+                        <div class="field">
+                            <div class="control has-icons-left">
+                                <input id="input-password" class="input" type="password" placeholder="비밀번호">
+                                <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div id="div-sign-in-or-up" class="has-text-centered">
+                        <nav class="level is-mobile">
+                            <button class="level-item button is-sparta" onclick="sign_in()">
+                                로그인
+                            </button>
+
+                        </nav>
+                        <hr>
+                        <h4 class="mb-3">아직 회원이 아니라면</h4>
+                        <nav class="level is-mobile">
+
+                            <button class="level-item button is-sparta is-outlined"
+                                    onclick=window.location.href="/register">
+                                회원가입하기
+                            </button>
+                        </nav>
+                    </div>
+
                 </div>
+            </article>
+        </div>
 
-            </div>
-        </section>
+    </div>
+</section>
 
-    </body>
+</body>
 </html>

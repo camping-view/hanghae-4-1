@@ -21,8 +21,8 @@ app.secret_key = 'CAMPING-VIEW'
 # JWT 사용하기 위해한 SECRET_KEY
 SECRET_KEY = 'CAMPING-VIEW'
 
-# client = MongoClient('내AWS아이피', 27017, username="아이디", password="비밀번호")
-client = MongoClient('localhost', 27017)
+client = MongoClient('13.125.154.61', 27017, username="test", password="test")
+# client = MongoClient('localhost', 27017)
 db = client.campingview
 
 

@@ -35,7 +35,23 @@ input::-webkit-calendar-picker-indicator {
 }
 
 .image img {
-    object-fit:cover;
-    width:100%;
-    height:100%;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
 }
+
+.title {
+    font-weight: 800;
+    font-size: 5rem;
+    font-family: 'Stylish', sans-serif;
+}
+
+.subtitle {
+    font-family: 'Gamja Flower', cursive;
+    font-size: 2rem;
+
+}
+
+.help {
+                color: gray;
+            }
