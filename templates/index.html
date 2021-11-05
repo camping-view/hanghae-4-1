@@ -199,9 +199,9 @@
             <h3 class="subtitle is-sparta">내돈내산</h3>
         </div>
         <div>
-            <button onclick="writeReview()">리뷰쓰기</button>
             {#TODO 로그인 여부에따라 버튼 보여주기#}
             {% if status %}
+                <button onclick="writeReview()">리뷰쓰기</button>
                 <button onclick="logout_out()">로그아웃</button>
             {% else %}
                 <button onclick="login()">로그인</button>
