@@ -116,3 +116,8 @@ input::-webkit-calendar-picker-indicator {
     padding: 10px;
     margin: 10px 0;
 }
+
+.check-msg{
+    color: red;
+    font-size: 15px;
+}
