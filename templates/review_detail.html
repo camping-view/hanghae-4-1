@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Stylish&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
+    <!--review.html에 관한 CSS-->
+    <link href="{{ url_for('static', filename='css/review.css') }}" rel="stylesheet">
+
+    <!-- js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <!--header-->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <title>Review Write</title>
+
+
+    <script>
+        $(document).ready(function () {
+            reviewStar();
+        });
+
+        function reviewStar(){
+            //a태그에 별넣어주기
+            let star=''
+            for(let i=0; i<{{review.star}}; i++){
+                star+='★'
+            }
+            $('#review_star a').text(star)
+        }
+        function deleteReview() {
+            if(confirm('정말 삭제하시겠습니까?')){
+                $.ajax({
+                    type   : "POST"
+                    ,url    : "/review/delete.json"
+                    ,dataType: "json"
+                    ,data   : {
+                         delete_id : '{{review._id}}'
+                    }
+                    ,success: function (response) {
+                         if(response['result']){
+                             alert(response['msg'])
+                             window.location.href = "/"
+                         }
+                    }
+                });
+            }
+        }
+
+    </script>
+
+</head>
+<body>
+    <section class="hero is-white">
+        <div class="hero-body has-text-centered" style="padding-bottom:1rem;margin:auto;">
+            <h1 class="title is-sparta" onclick="home()">캠핑 쀼</h1>
+            <h3 class="subtitle is-sparta">세상을 즐겁게</h3>
+        </div>
+        <div>
+            {#TODO 로그인 여부에따라 버튼 보여주기#}
+            <button onclick="writeReview()">리뷰쓰기</button>
+            <button onclick="login()">로그인</button>
+            <button onclick="logout_out()">로그아웃</button>
+        </div>
+    </section>
+    <form id="review-detail" method="post" enctype="multipart/form-data">
+        <div class="image-area">
+            <div class="image-preview">
+       {#TODO 이미지 #}
+            </div>
+        </div>
+
+        <div class="">
+            <label for="product-name">상품명</label>
+            <input type="text" id="product-name" name="name" value="{{ review.name }}" disabled>
+        </div>
+        <div class="">
+            <label for="product-price">가격</label>
+            <input type="number" id="product-price" class="" name="price" value="{{ review.price }}" disabled>
+        </div>
+        <div id="review_star" class="star_rating">
+            <a id="detail_star" class="on"></a>
+        </div>
+
+        <div class="">
+            <textarea id="review-content" name="content" disabled>{{ review.content }}</textarea>
+        </div>
+        <!--TODO 내글이면 삭제하기 버튼 보여주기-->
+        {% if my_review %}
+            <button type="button" onclick="deleteReview()">삭제하기</button>
+         {% endif %}
+        {% if review.url  is not none %}
+            <div class="">
+                <input type="url" id="product-url" name="url" value="{{ review.url }}" disabled>
+                <a href="{{ review.url }}" target="_blank">나도 사러가기</a>
+            </div>
+        {% endif %}
+
+    </form>
+
+</body>
+</html>

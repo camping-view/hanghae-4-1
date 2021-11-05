@@ -25,7 +25,7 @@
 
     <script>
 
-    $(document).ready(function () {
+        $(document).ready(function () {
             $(".star_rating a").click(function () {
                 $(this).parent().children("a").removeClass("on");
                 $(this).addClass("on").prevAll("a").addClass("on");
@@ -98,8 +98,8 @@
                     success: function (response) {
                         if (response.result) {
                             console.log(response.review_id)
-                            alert(response["msg"]);
-                            //window.location.href = "/reivew?review_id=" + response.review_id
+                            alert(response["등록이 완료되었습니다"])
+                            //window.location.href = "/reivew?review_id="+response.review_id
                         } else {
                             alert(response["msg"])
                         }
@@ -146,20 +146,27 @@
                     product_url: url.val()
                 },
                 success: function (response) {
-                    let product_info = response['product_info']
-                    let imag_src = product_info['image_src']
-                    preview.attr('src', imag_src)
-                    name.val(product_info['title'])
-                    $('#product-url').attr('readonly',true)
+                    let image_src = response['image_src']
+                    let title = response['title']
+                    if(image_src){
+                        preview.attr('src', image_src)
+                    }
+                    if(title){
+                        name.val(title)
+                        $('#product-url').attr('readonly',true)
+                    }
                 }
             });
         }
 
         function urlRset() {
-            $("#product-url").removeAttr('readonly').val('');
-            //미리보기 이미지 초기화
-            $('#preview-img').attr('src', '')
+            if($("#product-url").prop('readonly')){
+                 $("#product-url").removeAttr('readonly').val('');
+                //미리보기 이미지 초기화
+                $('#preview-img').attr('src', '')
+            }
         }
+
         function showImage(uploadImage) {
             let preview = $('#preview-img')
             if (uploadImage.files && uploadImage.files[0]) {
@@ -169,7 +176,7 @@
                 }
                 reader.readAsDataURL(uploadImage.files[0]);
             } else {
-                preview.setAttribute("src", '');
+                preview.attr("src", '');
             }
         }
 
@@ -178,30 +185,9 @@
                 logout_out()
             }
         }
-
-        function like(){
-            $.ajax({
-                url: "/review/like",
-                type: "POST",
-                data: {
-                    review_id : 1
-                },
-                success: function (response) {
-                    //리뷰 클릭 후처리
-                }
-            });
+        function fileClick(){
+            $('#product-image').click()
         }
-
-        // function detailReview(id){
-        //     $.ajax({
-        //         type: "GET",
-        //         url: "/review",
-        //         data: {review_id : id},
-        //         success: function (response) {
-        //             alert('review detail');
-        //         }
-        //     })
-        // }
 
     </script>
 </head>
@@ -212,14 +198,15 @@
             <h3 class="subtitle is-sparta">세상을 즐겁게</h3>
         </div>
         <div>
+            {#TODO 로그인 여부에따라 버튼 보여주기#}
             <button onclick="login()">로그인</button>
-            <button onclick="before_logout()">로그아웃</button>
+            <button onclick="logout_out()">로그아웃</button>
         </div>
     </section>
     <form id="review-form" method="post" enctype="multipart/form-data">
         <div class="image-area">
             <div class="image-preview">
-                <img class="img" id="preview-img" src="" height="300" width="300">
+                <img class="img" id="preview-img" src="" height="300" width="300" onclick="fileClick()">
             </div>
             <div class="image-upload">
                 <label for="product-image"> </label>
@@ -239,7 +226,6 @@
             <p class="check-msg"></p>
         </div>
         <div class="">
-            <!--TODO 크롤링-->
             <button id="url-button" type="button" onclick="infoOpen()">?</button>
             <div id="url-info"></div>
             <label for="product-url">url</label>
@@ -248,7 +234,6 @@
             <button type="button" onclick="urlRset();">초기화</button>
             <p class="check-msg"></p>
         </div>
-        <!--TODO 별점-->
         <div class="star_rating">
             <a class="on">★</a>
             <a class="on">★</a>
@@ -263,10 +248,6 @@
             <p class="check-msg"></p>
         </div>
         <button type="button" onclick="insertReview();">등록하기</button>
-        <button type="button" onclick="updateReview();">수정하기</button>
-        <button type="button" onclick="deleteReview();">삭제하기</button>
     </form>
-    <!--TODO 강의처럼 span으로 바꿔주세요. -->
-    <button type="button" onclick="like()">도움돼요</button>
 </body>
 </html>

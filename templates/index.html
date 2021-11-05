@@ -36,14 +36,15 @@
     <!--header-->
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 
+
     <script>
 
 
         //리뷰 불러오기
         $(document).ready(function () {
             get_reviews()
+            getStar()
         })
-
         //좋아요 불러오기
         function get_reviews(user_id) {
             if (user_id == undefined) {
@@ -179,16 +180,8 @@
 
             }
         }
-        function writeReview(){
-            //로그인 되어있는지 체크
-            //if(로그인 되어있으면){
-            window.location.href="/review/insert"
-            // }else{
-            // login()
-            // }
-        }
     </script>
-
+{#TODO 이게 어떤코드인지?#}
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             <script>
@@ -207,6 +200,7 @@
         </div>
         <div>
             <button onclick="writeReview()">리뷰쓰기</button>
+            {#TODO 로그인 여부에따라 버튼 보여주기#}
             <button onclick="login()">로그인</button>
             <button onclick="logout_out()">로그아웃</button>
         </div>
@@ -214,14 +208,18 @@
     <section class="section-index">
         <div class="card-columns">
             {% for review in reviews %}
-            <div class="card">
-                <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">{{ review.name }}<span class="card-price">        {{ review.price }}원</span></h5>
-                    <p class="card-comment">{{ review.comment }}</p>
-                    <p class="card-star">별점: {{ review.star }}</p>
+                <div class="card">
+                <!--TOOD 왜 review._id하면 object가아닌 string으로 넘기는지 알아보기-->
+                    <a href="/review?review_id={{ review._id }}">
+                        <img class="card-img-top" src="{{ review.crawling_image }}" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ review.name }}<span class="card-price">{{ review.price }}원</span></h5>
+                            <p class="card-comment">{{ review.comment }}</p>
+                            <!--TODO ★로 출력...안되면 말고... -->
+                            <p class="card-star">별점: {{ review.star }}</p>
+                        </div>
+                    </a>
                 </div>
-            </div>
             {% endfor %}
         </div>
     </section>
