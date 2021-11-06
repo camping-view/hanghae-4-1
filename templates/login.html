@@ -30,10 +30,13 @@
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
     <script>
 
+        {# 로그인 #}
         function sign_in() {
+             {# id pw 받아온다 #}
             let id = $("#input-username").val()
             let password = $("#input-password").val()
 
+            {# id 입력 확인 #}
             if (id == "") {
                 $("#help-id-header").text("아이디를 입력해주세요.")
                 $("#input-username").focus()
@@ -42,6 +45,7 @@
                 $("#help-id-header").text("")
             }
 
+            {# pw 입력 확인 #}
             if (password == "") {
                 $("#help-password-header").text("비밀번호를 입력해주세요.")
                 $("#input-password").focus()
@@ -58,9 +62,12 @@
                 },
                 success: function (response) {
                     if (response['result'] == 'success') {
+                        {#로그인이 정상적으로 되면, 토큰을 받아옵니다.#}
+                        {#이 토큰을 my_token이라는 키 값으로 쿠키에 저장합니다.#}
                         $.cookie('mytoken', response['token'], {path: '/'});
                         window.location.replace("/")
                     } else {
+                        {#로그인이 안되면 에러메시지를 띄웁니다.#}
                         alert(response['msg'])
                     }
                 }
