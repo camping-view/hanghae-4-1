@@ -1,7 +1,4 @@
 # 캠핑 쀼
-
-***
-
 #### 코로나때문에 열풍이 된 캠핑! 
 초보캠퍼들, 만렙캠퍼들의 캠핑용품 리뷰 사이트에서 어떤 상품이 좋은지 구경하고 가세요!!
 
@@ -24,5 +21,5 @@
 ***
 
 <p>🦄 프로젝트 데모영상</p>
-![Uploading campingview.png…](https://youtu.be/dhaqHyJ83ns)
+[YouTube 데모영상](https://youtu.be/dhaqHyJ83ns)
 
