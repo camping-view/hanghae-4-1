@@ -55,8 +55,7 @@
         <div class="navbar-item">
             <div class="buttons">
                 {#로그인 여부에따라 버튼 보여주기#}
-                <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')"
-                   ;>리뷰작성</a>
+                <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')">리뷰작성</a>
                 {% if status %}
                     <a class="button is-light" onclick="logout_out()">
                         로그아웃
@@ -80,6 +79,7 @@
 </section>
 <section class="hero is-white">
     <div class="card-columns">
+        {#DB에 저장된 review 리스트를 가져와서 표현 (이미지, 상품명, 가격, 코멘트, 별점#}
         {% for review in reviews %}
             <a href="/review?review_id={{ review._id }}">
                 <div class="card">
@@ -92,6 +92,7 @@
                             <p class="card-price">{{ review.price }}원</p>
                             <p class="card-comment">{{ review.content }}</p>
                         </div>
+                        {#별점 숫자에 따라 별점 모양 표시#}
                         <div class="review-star"> {% for x in range(review.star | int) %}★{% endfor %}</div>
                     </div>
                 </div>
