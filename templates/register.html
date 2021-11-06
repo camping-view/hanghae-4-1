@@ -94,7 +94,7 @@
             {#닉네임 입력 여부 체크 확인하여 에러 메세지 표시#}
             if (nick == "") {
                 $("#help-nick").text("닉네임을 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                $("#input-nick").focus()
+                {#$("#input-nick").focus()#}
                 return;
             }
 
