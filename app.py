@@ -21,8 +21,8 @@ app.secret_key = 'CAMPING-VIEW'
 # JWT 사용하기 위해한 SECRET_KEY
 SECRET_KEY = 'CAMPING-VIEW'
 
-client = MongoClient('13.125.154.61', 27017, username="test", password="test")
-# client = MongoClient('localhost', 27017)
+#client = MongoClient('13.125.154.61', 27017, username="test", password="test")
+client = MongoClient('localhost', 27017)
 db = client.campingview
 
 ###메인페이지
@@ -220,32 +220,31 @@ def insert_review():
 ###리뷰 상세페이지
 @app.route('/review', methods=['GET'])
 def review_detail():
-    ###넘어온 reivew의 id값을 object형으로 변환
-    review_id = ObjectId(request.args.get("review_id"))
-    ###TODO 리뷰 아이디값이 안넘어왔을때의 처리필요
-
-    review = db.reviews.find_one({'_id': review_id})
-    ###TODO 리뷰아이디로 데이터조회가 안됐을때의 처리필요
-
     ###cookies에서 토큰 받기
     token_receive = request.cookies.get('mytoken')
+    review_id = request.args.get("review_id")
+    if review_id == '':
+        flash("해당 리뷰가 없습니다. 다시 시도해주세요.")
+        return redirect(url_for('home'))
+        ###넘어온 reivew의 id값을 object형으로 변환
+    review = db.reviews.find_one({'_id': ObjectId(review_id)})
     my_review = False
+    status = False
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         ###내 프로필이면 True, 다른 사람 프로필 페이지면 False
-        status = payload["id"]
-        access_info = db.member.find_one({"user_id": status})
-
+        access_info = db.member.find_one({"user_id": payload['id']})
+        status = True
         ###리뷰가 접속한유저가 적은 리뷰인지 체크
         if str(access_info['_id']) == str(review['member_id']):
             my_review = True
+        ###리뷰데이터, 접속한유저가 적은리뷰인치 체크한 데이터, 로그인한 userid데이터
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         ###로그인되어있지않거나, 접속유저의 글이 아닐경우
-        status = False
         my_review = False
-
-    ###리뷰데이터, 접속한유저가 적은리뷰인치 체크한 데이터, 로그인한 userid데이터
+        ###리뷰데이터, 접속한유저가 적은리뷰인치 체크한 데이터, 로그인한 userid데이터
     return render_template('review_detail.html', review=review, my_review=my_review, status=status)
+
 
 ###리뷰 등록시 image, 가격 크롤링
 @app.route('/crawling/productInfo', methods=['POST'])
@@ -259,7 +258,6 @@ def crawling_product():
 
     data = requests.get(url_receive, headers=headers)
     soup = BeautifulSoup(data.text, 'html.parser')
-
     ###og:image태그내용 가져오기
     image_src = soup.select_one('meta[property="og:image"]')['content']
 
@@ -270,23 +268,19 @@ def crawling_product():
 ##리뷰 삭제
 @app.route('/review/delete', methods=['POST'])
 def delete_review():
-    review_id = ObjectId(request.form["delete_id"])
-    db.reviews.delete_one({'_id': review_id})
-    return jsonify({'result': True, 'msg': '리뷰가 삭제되었습니다.'})
-
-    ###TODO 내가 쓴글인지 확인하고 삭제
-    ###현재는 화면에서만 막고있음
-    # token_receive = request.cookies.get('mytoken')
-    # try:
-    #     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-    #     review_id = ObjectId(request.form["delete_id"])
-    #     review = db.reviews.find_one({'_id': review_id})
-    #     member_id = db.member.find_one(({'user_id': payload['id']})['_id'])
-    #     if str(member_id) == str(review['member_id']):
-    #         db.reviews.delete_one({'_id': review_id})
-    #         return jsonify({'result': True, 'msg': '리뷰가 삭제되었습니다.'})
-    # except:
-    #     return jsonify({'result': False,'msg': '본인의 리뷰만 삭제할 수 있습니다.'})
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        review_id = ObjectId(request.form["delete_id"])
+        review = db.reviews.find_one({'_id': review_id})
+        access_info = db.member.find_one({'user_id': payload['id']})
+        if str(access_info['_id']) == str(review['member_id']):
+            db.reviews.delete_one({'_id': review_id})
+            return jsonify({'result': True, 'msg': '리뷰가 삭제되었습니다.'})
+        else:
+            return jsonify({'result': False, 'msg': '본인의 리뷰만 삭제할 수 있습니다.'})
+    except:
+        return jsonify({'result': False,'msg': '로그인 한뒤에 이용해주세요.'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

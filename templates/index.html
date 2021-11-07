@@ -55,7 +55,7 @@
         <div class="navbar-item">
             <div class="buttons">
                 {#로그인 여부에따라 버튼 보여주기#}
-                <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')">리뷰작성</a>
+                <a class="button is-warning" onclick="writeReview('{% if status %}true{% else %}false{% endif %}')";>리뷰작성</a>
                 {% if status %}
                     <a class="button is-light" onclick="logout_out()">
                         로그아웃

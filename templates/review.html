@@ -235,7 +235,7 @@
             <div class="navbar-item">
                 <div class="buttons">
                     {# 로그인여부 데이터를 담아 리뷰작성메소드호출#}
-                    <a class="button is-warning" onclick="writeReview('{% if status %} true {% else %} false {% endif %}')">리뷰작성</a>
+                    <a class="button is-warning" onclick="writeReview('{% if status %}true{% else %}false{% endif %}')";>리뷰작성</a>
                     {% if status %}
                         {#로그인이 되어있으면 로그아웃버튼 출력#}
                         <a class="button is-light" onclick="logout_out()">로그아웃</a>
